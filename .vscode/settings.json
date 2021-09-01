@@ -1,0 +1,20 @@
+{
+  "python.linting.pylintEnabled": true,
+  "python.linting.enabled": true,
+  "python.linting.pylintArgs": [
+    "--init-hook",
+    "import sys; sys.path.append('/home/felipe/Documentos/Faculdade/musicoop')"
+  ],
+  "python.sortImports.args": [
+    "-rc",
+    "--atomic"
+  ],
+  "python.formatting.autopep8Args": [
+    "--indent-size=4 --agressive"
+  ],
+  "editor.formatOnSave": true,
+  "files.trimTrailingWhitespace": true,
+  "editor.rulers": [
+    100
+  ],
+}
