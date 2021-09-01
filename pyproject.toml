@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "musicoop"
+version = "0.1.0"
+description = ""
+authors = ["Felipe <felipeoliveiramaia3@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.68.1"
+uvicorn = "^0.15.0"
+SQLAlchemy = "^1.4.23"
+psycopg2 = "^2.9.1"
+fastapi-login = "^1.6.3"
+python-dotenv = "^0.19.0"
+SQLAlchemy-Utils = "^0.37.8"
+python-jose = "^3.3.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+autopep8 = "^1.5.7"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
