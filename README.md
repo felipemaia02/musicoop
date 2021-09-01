@@ -1,1 +1,1 @@
-# MusiCoop
+# musicoop
