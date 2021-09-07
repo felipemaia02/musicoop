@@ -2,7 +2,7 @@
 name = "musicoop"
 version = "0.1.0"
 description = ""
-authors = ["Felipe <felipeoliveiramaia3@gmail.com>"]
+authors = ["Felipe Oliveira Maia<felipeoliveiramaia3@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
