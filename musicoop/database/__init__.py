@@ -24,6 +24,7 @@ try:
 
     logger.info("INICIALIZANDO TABELAS")
     Base.metadata.create_all(engine)
+
 except AttributeError as error:
     logger.info("OCORREU ALGUM ERRO DURANTE A CRIAÇÃO DO BANCO DE DADOS: %s", error)
 

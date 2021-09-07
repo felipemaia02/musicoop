@@ -35,5 +35,6 @@ app.add_middleware(
 
 try:
     Base.metadata.create_all(engine)
+    print(Base.metadata.sorted_tables)
 except Exception as error: # pylint: disable=broad-except
     logger.info("NÃO FOI POSSÍVEL CRIAR AS TABELAS NO BANCO DE DADOS AUTOMATICAMENTE: %s", error)
