@@ -10,27 +10,26 @@ from sqlalchemy_utils import database_exists, create_database
 from dotenv import load_dotenv
 from musicoop.settings.logs import logging
 
+
 logger = logging.getLogger(__name__)
 Base = declarative_base()
 load_dotenv()
+SQLALCHAMY_DATABASE_URL = 'postgresql://postgres:root@localhost/musicoop'
+
 try:
-    engine = create_engine('postgresql://postgres:root@localhost/musicoop',
-                           encoding="utf-8",pool_pre_ping=True)
+    engine = create_engine(SQLALCHAMY_DATABASE_URL, encoding="utf-8",
+                            pool_pre_ping=True)
     SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
-
     if not database_exists(engine.url):
-        logger.info("A BASE DE DADOS NÃO EXISTE. TENTANDO CRIAR...")
-        create_database('postgresql://postgres:root@localhost/musicoop')
+        logger.info("A Base de Dados não existe. Tentando criar...")
+        create_database(SQLALCHAMY_DATABASE_URL)
 
-    logger.info("INICIALIZANDO TABELAS")
+    logger.info("Inicializando Tabelas")
     Base.metadata.create_all(engine)
-
 except AttributeError as error:
-    logger.info("OCORREU ALGUM ERRO DURANTE A CRIAÇÃO DO BANCO DE DADOS: %s", error)
-
+    logger.info("ERRO ao criar conexão com o Banco de Dados: %s", error)
 except Exception as error: # pylint: disable=broad-except
-    logger.info("OCORREU ALGUM ERRO DURANTE A EXECUÇÃO DE QUERY BANCO DE DADOS: %s", error)
-
+    logger.info("Ocorreu algum erro ao criar conexão com o Banco de Dados: %s", error)
 
 def get_db() -> Generator:
     """
@@ -42,8 +41,8 @@ def get_db() -> Generator:
         try:
             yield database
         except Exception as err:  # pylint: disable=broad-except
-            logger.info("OCORREU ALGUM ERRO DURANTE A EXECUÇÃO DE QUERY BANCO DE DADOS: %s", err)
+            logger.info("Ocorreu algum erro durante a execução de query Banco de Dados: %s", err)
         finally:
             database.close()
-    except Exception as err:  # pylint: disable=broad-except
-        logger.info("OCORREU ALGUM ERRO DURANTE A EXECUÇÃO DE QUERY BANCO DE DADOS: %s", err)
+    except Exception as err: # pylint: disable=broad-except
+        logger.info("Ocorreu algum erro durante a busca da instância do Banco de Dados: %s", err)

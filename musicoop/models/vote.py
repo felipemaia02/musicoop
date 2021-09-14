@@ -1,29 +1,29 @@
 """
 Model responsável por salvar usuários da aplicação
 """
-from sqlalchemy import Column, Integer,String, ForeignKey, Time
+from sqlalchemy import Column, Integer, ForeignKey, Time
 
 from musicoop.database import Base
 
 
-class Comment(Base):
+class Vote(Base):
     """
-      Classe responsável pela tabela comments
+      Classe responsável pela tabela vote
 
       Attributes
-      ----------
-            music         : str
-                Nome dá música
-            comment       : str
-                Comentário dá música
+        ----------
+            music         : int
+                ID da música
+            contribuition : int
+                ID da contribuição da música
             user          : int
                 ID do usuário que criou o comentário
             creation_date : time
                 Data de criação
     """
-    __tablename__="comment"
+    __tablename__="vote"
     id = Column(Integer, primary_key=True, index=True)
     music = Column(Integer, ForeignKey('music.id'))
-    comment = Column(String, nullable=False)
+    contribuition = Column(Integer, ForeignKey('contribuition.id'))
     user = Column(Integer, ForeignKey('user.id'))
     creation_date = Column(Time, nullable=False)
