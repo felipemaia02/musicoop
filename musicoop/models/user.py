@@ -1,7 +1,8 @@
 """
 Model responsável por salvar usuários da aplicação
 """
-from sqlalchemy import Column, Integer,String, Time
+from datetime import datetime
+from sqlalchemy import Column, Integer,String, DateTime
 from sqlalchemy.orm import relationship
 
 from musicoop.database import Base
@@ -21,6 +22,8 @@ class User(Base):
                 Nome do usuário
             username      : str
                 Username do usuário
+            password      : str
+                Senha do usuário
             session_token : str
                 Token de sessão do usuário
             creation_date : time
@@ -31,14 +34,16 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
     name = Column(String, nullable=False)
     username = Column(String, unique=True, nullable=False)
+    password = Column(String, nullable=False)
     access_token = Column(String)
-    creation_date = Column(Time, nullable=False)
+    creation_date = Column(DateTime, default=datetime.now(),nullable=False)
 
     comment = relationship(Comment)
     contribuition = relationship(Contribuition)
     music = relationship(Music)
 
-    def __init__(self, email=None, name=None, username=None):
+    def __init__(self, email=None, name=None, username=None, password=None):
         self.email = email
         self.name = name
         self.username = username
+        self.password = password

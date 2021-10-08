@@ -7,11 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from musicoop.database import Base, engine
 from musicoop.settings.logs import logging
 from musicoop.api.routes import auth
-import musicoop.models #pylint: disable=unused-import
 
 logger = logging.getLogger(__name__)
 app = FastAPI(title="Musicoop", description="")
-
 
 @app.get("/", tags=["Musicoop"])
 async def root():

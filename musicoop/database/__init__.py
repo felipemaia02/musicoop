@@ -14,15 +14,14 @@ from musicoop.settings.logs import logging
 logger = logging.getLogger(__name__)
 Base = declarative_base()
 load_dotenv()
-SQLALCHAMY_DATABASE_URL = 'postgresql://postgres:root@localhost/musicoop'
 
 try:
-    engine = create_engine(SQLALCHAMY_DATABASE_URL, encoding="utf-8",
+    engine = create_engine(os.getenv('SQLALCHAMY_DATABASE_URL'), encoding="utf-8",
                             pool_pre_ping=True)
     SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
     if not database_exists(engine.url):
         logger.info("A Base de Dados não existe. Tentando criar...")
-        create_database(SQLALCHAMY_DATABASE_URL)
+        create_database(os.getenv('SQLALCHAMY_DATABASE_URL'))
 
     logger.info("Inicializando Tabelas")
     Base.metadata.create_all(engine)

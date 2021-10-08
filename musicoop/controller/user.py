@@ -3,10 +3,10 @@
 """
 
 from sqlalchemy.orm import Session
+import hashlib
 
-from musicoop.schemas.user import UserSchema
+from musicoop.schemas.user import CreateUserSchema
 from musicoop.models.user import User
-
 from musicoop.settings.logs import logging
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ def get_user(email: str, database: Session) -> User:
 
     return user
 
-def create_user(request: UserSchema, database: Session) -> User:
+def create_user(request: CreateUserSchema, database: Session) -> User:
     """
       Description
       -----------
@@ -36,8 +36,10 @@ def create_user(request: UserSchema, database: Session) -> User:
       ----------
 
     """
+    password = hashlib.sha256(request.password.encode()).hexdigest()
 
-    new_user = User(email=request.email, name=request.name, username=request.username)
+    new_user = User(email=request.email, name=request.name,
+                    username=request.username, password=password)
     database.add(new_user)
     database.commit()
     logger.info("FOI CRIADO NO BANCO O SEGUINTE USUÁRIO: %s", new_user)

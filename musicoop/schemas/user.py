@@ -11,3 +11,9 @@ class UserSchema(BaseSchema):
     email: str
     username: str
     name : str
+
+class CreateUserSchema(UserSchema):
+    """
+        Classe que contém os atributos para criar um usuário
+    """
+    password: str
