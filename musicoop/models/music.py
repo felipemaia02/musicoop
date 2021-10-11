@@ -1,7 +1,8 @@
 """
 Model responsável por salvar usuários da aplicação
 """
-from sqlalchemy import Column, Integer,String, ForeignKey, Time, LargeBinary
+from datetime import datetime
+from sqlalchemy import Column, Integer,String, ForeignKey, DateTime, LargeBinary
 
 from musicoop.database import Base
 
@@ -26,4 +27,9 @@ class Music(Base):
     music_name = Column(String, nullable=False)
     file = Column(LargeBinary, nullable=False)
     user = Column(Integer, ForeignKey('user.id'))
-    creation_date = Column(Time, nullable=False)
+    creation_date = Column(DateTime, default=datetime.now(),nullable=False)
+
+    def __init__(self, music_name=None,file=None,user=None):
+        self.music_name = music_name
+        self.file = file
+        self.user = user

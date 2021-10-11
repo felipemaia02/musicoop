@@ -81,6 +81,7 @@ def register_user(request: CreateUserSchema, db_session: Session = Depends(get_d
         ------
     """
     new_user = create_user(request, db_session)
+    #TODO: VALIDA CASO E EMAIL E USUARIO EXISTAM NÃO PERMITIR CRIAR NOVA CONTA
 
     if new_user is None:
         raise HTTPException(
