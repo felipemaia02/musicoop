@@ -23,7 +23,12 @@ class Comment(Base):
     """
     __tablename__="comment"
     id = Column(Integer, primary_key=True, index=True)
-    music = Column(Integer, ForeignKey('music.id'))
+    project = Column(Integer, ForeignKey('project.id'))
     comment = Column(String, nullable=False)
     user = Column(Integer, ForeignKey('user.id'))
     creation_date = Column(Time, nullable=False)
+
+    def __init__(self, project=None, comment=None, user=None):
+        self.project = project
+        self.comment = comment
+        self.user = user

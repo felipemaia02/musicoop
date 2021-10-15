@@ -29,6 +29,6 @@ class Contribuition(Base):
     name = Column(String, nullable=False)
     aproved = Column(Boolean, nullable=False)
     file = Column(LargeBinary, nullable=False)
-    music = Column(Integer, ForeignKey('music.id'))
+    music = Column(Integer, ForeignKey('project.id'))
     user = Column(Integer, ForeignKey('user.id'))
     creation_date = Column(Time, nullable=False)

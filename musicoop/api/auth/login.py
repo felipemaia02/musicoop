@@ -18,7 +18,7 @@ from musicoop.core import auth
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 load_dotenv()
 
 @router.get("/auth/token", status_code=status.HTTP_200_OK)
@@ -41,7 +41,7 @@ def check_logged_in(
         -------
             Dicionário com usuário logado.
     """
-    user_token = get_user(current_user.email, db_session).session_token
+    user_token = get_user(current_user.email, db_session).access_token
     if incoming_token != user_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

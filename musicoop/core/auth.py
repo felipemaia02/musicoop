@@ -10,18 +10,18 @@ from fastapi_login import LoginManager
 from fastapi_login.exceptions import InvalidCredentialsException
 from sqlalchemy.orm.session import Session
 from musicoop.models.user import User
-from musicoop.schemas.user import UserSchema
+from musicoop.schemas.user import GetUserSchema
 from musicoop.database import get_db
 from musicoop.settings.logs import logging
 from musicoop.controller.user import get_user
 
 logger = logging.getLogger(__name__)
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-manager = LoginManager(os.getenv('SECRET_KEY'), "/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+manager = LoginManager(os.getenv('SECRET_KEY'), "/login")
 
 
 @manager.user_loader
-def load_user(email: str, db_session: Session) -> UserSchema:
+def load_user(email: str, db_session: Session) -> GetUserSchema:
     """Função responsável por buscar instância do usuário a partir do Email informado.
 
         Parameters
@@ -38,14 +38,14 @@ def load_user(email: str, db_session: Session) -> UserSchema:
         logger.info("NÃO FOI POSSÍVEL BUSCAR O USUÁRIO")
         raise InvalidCredentialsException
     logger.info("BUSCA DO USUÁRIO REALIZADA COM SUCESSO")
-    return UserSchema(email=email,
+    return GetUserSchema(email=email,
                       id=user.id,
                       username=user.username,
                       name=user.name,
                     )
 
 def get_current_user(token: str = Depends(oauth2_scheme),
-                     db_session: Session = Depends(get_db)) -> UserSchema:
+                     db_session: Session = Depends(get_db)) -> GetUserSchema:
     """
         Função responsável por buscar as informações do usuário ao verificar o token.
 
@@ -72,7 +72,7 @@ def get_current_user(token: str = Depends(oauth2_scheme),
         token_exp = datetime.strptime(payload.get("expire_token"), "%Y-%m-%d %H:%M:%S.%f")
         email: str = payload.get("email")
 
-        user_token = get_user(email, db_session).session_token
+        user_token = get_user(email, db_session).access_token
         if datetime.now() >= token_exp or token != user_token:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

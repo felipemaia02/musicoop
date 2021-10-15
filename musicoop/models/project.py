@@ -15,14 +15,16 @@ class Project(Base):
         ----------
             project_name  : str
                 Nome dá música
+            path          : str
+                Caminho da música
             file          : str
-                Arquivo dá música
+                Arquivo da música
             user          : int
                 ID do usuário que criou a música
             creation_date : time
                 Data de criação
     """
-    __tablename__="music"
+    __tablename__="project"
     id = Column(Integer, primary_key=True, index=True)
     project_name = Column(String, nullable=False)
     file = Column(String, nullable=False)

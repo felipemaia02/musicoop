@@ -2,21 +2,26 @@
 Módulo responsável por ações de login e obtenção do token do usuário
 """
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm.session import Session
 from starlette import status
 
 from musicoop.settings.logs import logging
 from musicoop.database import get_db
-from musicoop.schemas.project import GetProjectSchema, ProjectSchema
-from musicoop.controller.project import get_musics, create_music, get_music_by_name
+from musicoop.schemas.project import ProjectSchema
+# from musicoop.schemas.user import GetUserSchema
+from musicoop.controller.project import get_projects, create_project, get_project_by_id
+# from musicoop.core.auth import get_current_user
+from musicoop.utils.save_file import copy_file
+from musicoop.utils.streamming import iterfile
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 load_dotenv()
 
-@router.post("/projects", status_code=status.HTTP_200_OK)
-def get_project(db_session: Session = Depends(get_db)) -> GetProjectSchema:
+@router.get("/projects", status_code=status.HTTP_200_OK)
+def get_project(db_session: Session = Depends(get_db)) -> ProjectSchema:
     """
         Description
         -----------
@@ -28,18 +33,18 @@ def get_project(db_session: Session = Depends(get_db)) -> GetProjectSchema:
         ------
     """
 
-    musics = get_musics(db_session)
+    projects = get_projects(db_session)
 
-    if not musics:
+    if not projects:
         raise HTTPException(
         status_code=status.HTTP_202_ACCEPTED,
         detail="retornou vazio"
     )
 
-    return musics
+    return projects
 
-@router.post('/project', status_code=status.HTTP_200_OK)
-def new_project(request: ProjectSchema, db_session: Session = Depends(get_db)) -> ProjectSchema:
+@router.get("/project/{project_id}", status_code=status.HTTP_200_OK)
+def getting_project_by_id(project_id:int, db_session: Session = Depends(get_db)) -> ProjectSchema:
     """
         Description
         -----------
@@ -51,22 +56,71 @@ def new_project(request: ProjectSchema, db_session: Session = Depends(get_db)) -
         ------
     """
 
-    validate_music = get_music_by_name(request.music_name, db_session)
-    if validate_music is not None:
+    project = get_project_by_id(project_id, db_session)
+
+    if project is None:
         raise HTTPException(
-        status_code=status.HTTP_409_CONFLICT,
-        detail="Essa musica já foi cadastrada no banco de dados"
+        status_code=status.HTTP_406_NOT_ACCEPTABLE,
+        detail="Erro ao buscar projeto"
     )
-    new_music = create_music(request, db_session)
-    if new_music is None:
+    return project
+
+@router.post('/project', status_code=status.HTTP_200_OK)
+async def new_project(
+                project_name: str = Form(...),
+                file: UploadFile = File(...),
+                # current_user:GetUserSchema = Depends(get_current_user),
+                db_session: Session = Depends(get_db)
+                ) -> ProjectSchema:
+    """
+        Description
+        -----------
+        Parameters
+        ----------
+        Returns
+        -------
+        Raises
+        ------
+    """
+    request = ProjectSchema.parse_obj({
+        "project_name":project_name,
+        "file":file.filename,
+        "user":1
+        })
+
+    save_file = await copy_file(file)
+
+    if save_file is False:
+        raise HTTPException(
+        status_code=status.HTTP_406_NOT_ACCEPTABLE,
+        detail="Erro ao salvar o arquivo no servidor, tente novamente!"
+    )
+    project = create_project(request, db_session)
+    if project is None:
         raise HTTPException(
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
         detail="Erro ao criar a música no banco de dados"
     )
-    music = ProjectSchema.parse_obj({
-        "music_name": request.music_name,
-        "file": request.file,
-        "user": 1
-    })
 
-    return music
+    return request
+
+@router.get('/music/{project_id}', status_code=status.HTTP_200_OK)
+def streamming_music(project_id:int, db_session: Session = Depends(get_db)):
+    """
+        Description
+        -----------
+        Parameters
+        ----------
+        Returns
+        -------
+        Raises
+        ------
+    """
+    project = get_project_by_id(project_id, db_session)
+
+    if project is None:
+        raise HTTPException(
+        status_code=status.HTTP_406_NOT_ACCEPTABLE,
+        detail="Erro ao reproduzir a música"
+    )
+    return StreamingResponse(iterfile(project.file), media_type="audio/mpeg")
