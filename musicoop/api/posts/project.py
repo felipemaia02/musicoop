@@ -44,7 +44,7 @@ def get_project(db_session: Session = Depends(get_db)) -> ProjectSchema:
     return projects
 
 
-@router.get("/project/{project_id}", status_code=status.HTTP_200_OK)
+@router.get("/projects/{project_id}", status_code=status.HTTP_200_OK)
 def getting_project_by_id(project_id:int, db_session: Session = Depends(get_db)) -> ProjectSchema:
     """
         Description
@@ -66,7 +66,7 @@ def getting_project_by_id(project_id:int, db_session: Session = Depends(get_db))
     )
     return project
 
-@router.post('/project', status_code=status.HTTP_200_OK)
+@router.post('/projects', status_code=status.HTTP_200_OK)
 async def new_project(
                 project_name: str = Form(...),
                 file: UploadFile = File(...),
@@ -105,7 +105,7 @@ async def new_project(
 
     return request
 
-@router.get('/music/{project_id}', status_code=status.HTTP_200_OK)
+@router.get('/musics/{project_id}', status_code=status.HTTP_200_OK)
 def streamming_music(project_id:int, db_session: Session = Depends(get_db)):
     """
         Description
@@ -124,4 +124,4 @@ def streamming_music(project_id:int, db_session: Session = Depends(get_db)):
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
         detail="Erro ao reproduzir a música"
     )
-    return StreamingResponse(iterfile(project.file), media_type="audio/mpeg")
+    return StreamingResponse(iterfile(project.file), media_type="audio/mp3")

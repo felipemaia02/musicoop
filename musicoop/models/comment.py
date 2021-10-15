@@ -1,7 +1,9 @@
 """
 Model responsável por salvar usuários da aplicação
 """
-from sqlalchemy import Column, Integer,String, ForeignKey, Time
+from datetime import datetime
+
+from sqlalchemy import Column, Integer,String, ForeignKey, DateTime
 
 from musicoop.database import Base
 
@@ -23,10 +25,11 @@ class Comment(Base):
     """
     __tablename__="comment"
     id = Column(Integer, primary_key=True, index=True)
-    project = Column(Integer, ForeignKey('project.id'))
     comment = Column(String, nullable=False)
-    user = Column(Integer, ForeignKey('user.id'))
-    creation_date = Column(Time, nullable=False)
+    project = Column(Integer, ForeignKey('project.id'), nullable=False)
+    user = Column(Integer, ForeignKey('user.id'), nullable=False)
+    creation_date = Column(DateTime, default=datetime.now(),nullable=False)
+
 
     def __init__(self, project=None, comment=None, user=None):
         self.project = project

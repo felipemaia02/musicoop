@@ -8,9 +8,8 @@ class CommentSchema(BaseSchema):
     """
         Classe que contém os atributos de um projeto
     """
-    project: str
-    comment:str
-    user : int
+    project: int
+    comment: str
 
 class GetCommentSchema(CommentSchema):
     """
@@ -18,3 +17,4 @@ class GetCommentSchema(CommentSchema):
     """
     id: int
     creation_date: str
+    user: int
