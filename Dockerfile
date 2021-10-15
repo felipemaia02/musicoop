@@ -1,9 +1,5 @@
 FROM tiangolo/uvicorn-gunicorn:python3.8-alpine3.10
 
-ENV CRYPTOGRAPHY_DONT_BUILD_RUST=1 \
-    MODULE_NAME="musicoop.app"
-
-
 WORKDIR /musicoop
 
 # Install GCC
@@ -21,3 +17,7 @@ RUN apk del .build-deps postgresql-dev gcc libc-dev libffi-dev libpq \
 RUN apk add --no-cache libpq
 
 COPY . /musicoop
+
+RUN cd musicoop
+
+CMD ["uvicorn", "musicoop.app:app", "--host", "0.0.0.0", "--port", "8000"]

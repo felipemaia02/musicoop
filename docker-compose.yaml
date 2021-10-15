@@ -16,9 +16,8 @@ services:
       POSTGRES_PASSWORD: root
       POSTGRES_DB: musicoop
   api:
-    build:
-      context: ./
-      dockerfile: Dockerfile
+    build: .
+    image: musicoop_api
     container_name: musicoop-api
     restart: on-failure
     ports:

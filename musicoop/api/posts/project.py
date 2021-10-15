@@ -43,6 +43,7 @@ def get_project(db_session: Session = Depends(get_db)) -> ProjectSchema:
 
     return projects
 
+
 @router.get("/project/{project_id}", status_code=status.HTTP_200_OK)
 def getting_project_by_id(project_id:int, db_session: Session = Depends(get_db)) -> ProjectSchema:
     """
