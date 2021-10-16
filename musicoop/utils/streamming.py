@@ -13,5 +13,8 @@ def iterfile(file):
         Raises
         ------
     """
-    with open("musicoop/static/" + file, mode="rb") as file_like:
-        yield from file_like
+    try:
+        with open("musicoop/static/" + file, mode="rb") as file_like:
+            yield from file_like
+    finally:
+        file_like.close()
