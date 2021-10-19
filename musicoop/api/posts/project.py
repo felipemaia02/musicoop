@@ -1,11 +1,14 @@
 """
 Módulo responsável por ações de login e obtenção do token do usuário
 """
+import os
+from io import DEFAULT_BUFFER_SIZE
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Header
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm.session import Session
 from starlette import status
+
 
 from musicoop.settings.logs import logging
 from musicoop.database import get_db
@@ -18,6 +21,7 @@ from musicoop.utils.streamming import iterfile
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+CHUNK_SIZE = 1024*1024
 load_dotenv()
 
 @router.get("/projects", status_code=status.HTTP_200_OK)
@@ -105,8 +109,10 @@ async def new_project(
 
     return request
 
-@router.get('/musics/{project_id}', status_code=status.HTTP_200_OK)
-def streamming_music(project_id:int, db_session: Session = Depends(get_db)):
+@router.get('/musics/{project_id}', status_code=status.HTTP_206_PARTIAL_CONTENT)
+async def streamming_music(project_id:int,
+                           db_session: Session = Depends(get_db),
+                           range: str = Header(None)):
     """
         Description
         -----------
@@ -118,10 +124,23 @@ def streamming_music(project_id:int, db_session: Session = Depends(get_db)):
         ------
     """
     project = get_project_by_id(project_id, db_session)
-
+    if range is None:
+        start, end = 0, CHUNK_SIZE
+    else:
+        start, end = range.replace("bytes=", "").split("-")
+    start = int(start)
+    end = int(end) if end else start + CHUNK_SIZE
+    filesize = os.path.getsize("musicoop/static/" + project.file)
+    headers = {
+            'Accept-Ranges': 'bytes',
+            'Content-Range': f'bytes {str(start)}-{str(end)}/{filesize}',
+        }
     if project is None:
         raise HTTPException(
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
         detail="Erro ao reproduzir a música"
     )
-    return StreamingResponse(iterfile(project.file), media_type="audio/mp3")
+    return StreamingResponse(iterfile(project.file, start, end),
+                             headers=headers,
+                             media_type="audio/mp3",
+                             status_code=status.HTTP_206_PARTIAL_CONTENT)
