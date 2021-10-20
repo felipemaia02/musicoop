@@ -2,7 +2,6 @@
 Módulo responsável por ações de login e obtenção do token do usuário
 """
 import os
-from io import DEFAULT_BUFFER_SIZE
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Header
 from fastapi.responses import StreamingResponse
