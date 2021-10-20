@@ -109,7 +109,7 @@ async def new_project(
     return request
 
 @router.get('/musics/{project_id}', status_code=status.HTTP_206_PARTIAL_CONTENT)
-async def streamming_music(project_id:int,
+def streamming_music(project_id:int,
                            db_session: Session = Depends(get_db),
                            range: str = Header(None)):
     """
@@ -122,24 +122,30 @@ async def streamming_music(project_id:int,
         Raises
         ------
     """
-    project = get_project_by_id(project_id, db_session)
-    if range is None:
-        start, end = 0, CHUNK_SIZE
-    else:
-        start, end = range.replace("bytes=", "").split("-")
-    start = int(start)
-    end = int(end) if end else start + CHUNK_SIZE
-    filesize = os.path.getsize("musicoop/static/" + project.file)
-    headers = {
-            'Accept-Ranges': 'bytes',
-            'Content-Range': f'bytes {str(start)}-{str(end)}/{filesize}',
-        }
-    if project is None:
+    try:
+        project = get_project_by_id(project_id, db_session)
+        if range is None:
+            start, end = 0, CHUNK_SIZE
+        else:
+            start, end = range.replace("bytes=", "").split("-")
+        start = int(start)
+        end = int(end) if end else start + CHUNK_SIZE
+        filesize = os.path.getsize("musicoop/static/" + project.file)
+        headers = {
+                'Accept-Ranges': 'bytes',
+                'Content-Range': f'bytes {str(start)}-{str(end)}/{filesize}',
+            }
+        if project is None:
+            raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Erro ao reproduzir a música"
+        )
+        return StreamingResponse(iterfile(project.file, start, end),
+                                headers=headers,
+                                media_type="audio/mp3",
+                                status_code=status.HTTP_206_PARTIAL_CONTENT)
+    except Exception as err:
         raise HTTPException(
-        status_code=status.HTTP_406_NOT_ACCEPTABLE,
-        detail="Erro ao reproduzir a música"
-    )
-    return StreamingResponse(iterfile(project.file, start, end),
-                             headers=headers,
-                             media_type="audio/mp3",
-                             status_code=status.HTTP_206_PARTIAL_CONTENT)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Servidor fora do ar"
+        ) from err

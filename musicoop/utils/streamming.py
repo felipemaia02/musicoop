@@ -4,7 +4,7 @@
 
 from functools import partial
 
-async def iterfile(file, start, end):
+def iterfile(file, start, end):
     """
         Description
         -----------
@@ -21,6 +21,9 @@ async def iterfile(file, start, end):
             reader = partial(file_like.read, end - start)
             file_iterator = iter(reader, bytes())
             for chunk in file_iterator:
-                yield chunk
+                if chunk:
+                    yield chunk
+                else:
+                    break
     finally:
         file_like.close()
