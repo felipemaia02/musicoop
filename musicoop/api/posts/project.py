@@ -7,7 +7,6 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm.session import Session
 from starlette import status
 
-
 from musicoop.settings.logs import logging
 from musicoop.database import get_db
 from musicoop.schemas.project import ProjectSchema, ProjectCommentSchema
@@ -55,7 +54,6 @@ def get_project(db_session: Session = Depends(get_db)) -> ProjectCommentSchema:
         "creation_date" : str(project.creation_date),
         "comments": comment
         }))
-
 
     return list_projects
 
@@ -133,8 +131,8 @@ async def new_project(
 
 @router.get('/musics/{project_id}')
 def streamming_music(project_id:int,
-                           db_session: Session = Depends(get_db),
-                           range: str = Header(None)):
+                     db_session: Session = Depends(get_db),
+                     range: str = Header(None)):
     """
         Description
         -----------
