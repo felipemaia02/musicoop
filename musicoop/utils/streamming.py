@@ -1,7 +1,6 @@
 """
     Modulo
 """
-
 from functools import partial
 
 def iterfile(file, start, end):
@@ -20,10 +19,8 @@ def iterfile(file, start, end):
             file_like.seek(start)
             reader = partial(file_like.read, end - start)
             file_iterator = iter(reader, bytes())
-            for chunk in file_iterator:
-                if chunk:
-                    yield chunk
-                else:
-                    break
+            for byte in file_iterator:
+                yield byte
+
     finally:
         file_like.close()

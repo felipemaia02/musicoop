@@ -21,6 +21,7 @@ async def copy_file(file: UploadFile) -> bool:
         with open( "musicoop/static/" + file.filename, "wb") as buffer:
             logger.info("ARQUVO COPIADO COM SUCESSO PARA O DIRETÓRIO")
             shutil.copyfileobj(file.file, buffer)
+            file_size = os.path.getsize("musicoop/static/" + file.filename)
 
     except Exception as err:# pylint: disable=broad-except
         logger.info("NÃO FOI POSSIVEL ENVIAR O PARA O DIRETORIO: %s", err)
@@ -31,7 +32,7 @@ async def copy_file(file: UploadFile) -> bool:
         logger.info("FECHANDO DIRETÓRIO")
         await file.close()
 
-    return True
+    return True, file_size
 
 def validate_size(max_size: int, file: UploadFile):
     """

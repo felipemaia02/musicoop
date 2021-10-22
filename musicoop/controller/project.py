@@ -19,7 +19,7 @@ def get_projects(database: Session) -> List:
 
     """
 
-    projects = database.query(Project).all()
+    projects = database.query(Project).order_by(Project.id.desc()).all()
     logger.info("FOI RETORNADO DO BANCO AS SEGUINTES CONTRIBUIÇÕES: %s", projects)
 
     return projects
@@ -46,6 +46,7 @@ def get_project_by_id(project_id:str, database: Session) -> Project:
         ----------
     """
     project = database.query(Project).filter(Project.id == project_id).first()
+
     logger.info("FOI RETORNADO DO BANCO AS SEGUINTES CONTRIBUIÇÕES: %s", project)
 
     return project
@@ -59,7 +60,8 @@ def create_project(request: ProjectSchema,
       Parameters
       ----------
     """
-    new_project = Project(project_name=request.project_name,file=request.file, user=request.user)
+    new_project = Project(project_name=request.project_name,file=request.file,
+                          file_size=request.file_size,user=request.user)
     database.add(new_project)
     database.commit()
     logger.info("FOI CRIADO NO BANCO A SEGUINTE CONTRIBUIÇÃO: %s", new_project)
