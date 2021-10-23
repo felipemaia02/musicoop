@@ -5,22 +5,22 @@
 from musicoop.schemas.base_schema import BaseSchema
 
 
-class ProjectSchema(BaseSchema):
+class PostSchema(BaseSchema):
     """
         Classe que contém os atributos de um projeto
     """
-    project_name: str
+    post_name: str
     file: str
     file_size: int
     user : int
-class GetProjectSchema(ProjectSchema):
+class GetPostSchema(PostSchema):
     """
         Classe que contém os atributos de um projeto
     """
     id: int
     creation_date: str
 
-class ProjectCommentSchema(GetProjectSchema):
+class PostCommentSchema(GetPostSchema):
     """
         Classe que contém os atributos de um projeto
     """

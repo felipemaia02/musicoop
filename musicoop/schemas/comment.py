@@ -8,7 +8,7 @@ class CommentSchema(BaseSchema):
     """
         Classe que contém os atributos para criar um comentário
     """
-    project: int
+    post: int
     comment: str
 
 class GetCommentSchema(CommentSchema):

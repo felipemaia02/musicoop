@@ -9,7 +9,7 @@ from starlette import status
 from musicoop.settings.logs import logging
 from musicoop.database import get_db
 from musicoop.schemas.comment import GetCommentSchema, CommentSchema, CommentUpdateSchema
-from musicoop.controller.comment import (create_comment, get_comment_by_project,
+from musicoop.controller.comment import (create_comment, get_comment_by_post,
                                          delete_comment, update_comment)
 # from musicoop.core.auth import get_current_user
 
@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 load_dotenv()
 
-@router.get("/comments/{project_id}", status_code=status.HTTP_200_OK)
-def get_comments(project_id : int ,db_session: Session = Depends(get_db)) -> GetCommentSchema:
+@router.get("/comments/{post_id}", status_code=status.HTTP_200_OK)
+def get_comments(post_id : int ,db_session: Session = Depends(get_db)) -> GetCommentSchema:
     """
         Description
         -----------
@@ -30,7 +30,7 @@ def get_comments(project_id : int ,db_session: Session = Depends(get_db)) -> Get
         ------
     """
 
-    comments = get_comment_by_project(project_id, db_session)
+    comments = get_comment_by_post(post_id, db_session)
 
     if not comments:
         raise HTTPException(
@@ -62,7 +62,7 @@ def new_comments(request : CommentSchema ,db_session: Session = Depends(get_db))
     )
 
     return CommentSchema.parse_obj({
-        "project":request.project,
+        "post":request.post,
         "comment":request.comment,
         })
 

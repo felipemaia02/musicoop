@@ -27,13 +27,13 @@ class Comment(Base):
     __tablename__="comment"
     id = Column(Integer, primary_key=True, index=True)
     comment = Column(String, nullable=False)
-    project = Column(Integer, ForeignKey('project.id'), nullable=False)
+    post = Column(Integer, ForeignKey('post.id'), nullable=False)
     user = Column(Integer, ForeignKey('user.id'), nullable=False)
     creation_date = Column(DateTime, default=datetime.now(),nullable=False)
 
-    project_relation = relationship("Project", back_populates="comment_relation")
+    post_relation = relationship("Post", back_populates="comment_relation")
 
-    def __init__(self, project=None, comment=None, user=None):
-        self.project = project
+    def __init__(self, post=None, comment=None, user=None):
+        self.post = post
         self.comment = comment
         self.user = user

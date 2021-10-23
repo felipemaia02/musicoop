@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship
 from musicoop.database import Base
 from musicoop.models.comment import Comment
 from musicoop.models.contribuition import Contribuition
-from musicoop.models.project import Project
+from musicoop.models.post import Post
 from musicoop.models.vote import Vote
 
 
@@ -42,7 +42,7 @@ class User(Base):
 
     comment = relationship(Comment)
     contribuition = relationship(Contribuition)
-    project = relationship(Project)
+    post = relationship(Post)
     vote = relationship(Vote)
 
     def __init__(self, email=None, name=None, username=None, password=None):

@@ -9,11 +9,11 @@ from starlette import status
 
 from musicoop.settings.logs import logging
 from musicoop.database import get_db
-from musicoop.schemas.project import ProjectSchema, ProjectCommentSchema
+from musicoop.schemas.post import PostSchema, PostCommentSchema
 # from musicoop.schemas.user import GetUserSchema
-from musicoop.controller.project import (get_projects, create_project,
-                                         get_project_by_id)
-from musicoop.controller.comment import get_comment_by_project
+from musicoop.controller.post import (get_posts, create_post,
+                                         get_post_by_id)
+from musicoop.controller.comment import get_comment_by_post
 # from musicoop.core.auth import get_current_user
 from musicoop.utils.save_file import copy_file
 from musicoop.utils.streamming import iterfile
@@ -23,8 +23,8 @@ router = APIRouter()
 CHUNK_SIZE = 1024*1024
 load_dotenv()
 
-@router.get("/projects", status_code=status.HTTP_200_OK)
-def get_project(db_session: Session = Depends(get_db)) -> ProjectCommentSchema:
+@router.get("/posts", status_code=status.HTTP_200_OK)
+def get_post(db_session: Session = Depends(get_db)) -> PostCommentSchema:
     """
         Description
         -----------
@@ -35,32 +35,32 @@ def get_project(db_session: Session = Depends(get_db)) -> ProjectCommentSchema:
         Raises
         ------
     """
-    projects = get_projects(db_session)
+    posts = get_posts(db_session)
 
-    if not projects:
+    if not posts:
         raise HTTPException(
         status_code=status.HTTP_202_ACCEPTED,
         detail="retornou vazio"
     )
 
-    list_projects = []
-    for project in projects:
-        comment = get_comment_by_project(project.id, db_session)
-        list_projects.append(ProjectCommentSchema.parse_obj({
-        "id" : project.id,
-        "project_name" : project.project_name,
-        "file" : project.file,
-        "file_size": project.file_size,
-        "user" : project.user,
-        "creation_date" : str(project.creation_date),
+    list_posts = []
+    for post in posts:
+        comment = get_comment_by_post(post.id, db_session)
+        list_posts.append(PostCommentSchema.parse_obj({
+        "id" : post.id,
+        "post_name" : post.post_name,
+        "file" : post.file,
+        "file_size": post.file_size,
+        "user" : post.user,
+        "creation_date" : str(post.creation_date),
         "comments": comment
         }))
 
-    return list_projects
+    return list_posts
 
-@router.get("/projects/{project_id}", status_code=status.HTTP_200_OK)
-def getting_project_by_id(project_id:int,
-                          db_session: Session = Depends(get_db)) -> ProjectCommentSchema:
+@router.get("/posts/{post_id}", status_code=status.HTTP_200_OK)
+def getting_post_by_id(post_id:int,
+                          db_session: Session = Depends(get_db)) -> PostCommentSchema:
     """
         Description
         -----------
@@ -71,32 +71,32 @@ def getting_project_by_id(project_id:int,
         Raises
         ------
     """
-    project = get_project_by_id(project_id, db_session)
-    comment = get_comment_by_project(project_id, db_session)
+    post = get_post_by_id(post_id, db_session)
+    comment = get_comment_by_post(post_id, db_session)
 
-    if project is None:
+    if post is None:
         raise HTTPException(
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
         detail="Erro ao buscar projeto"
     )
 
-    return ProjectCommentSchema.parse_obj({
-        "id" : project.id,
-        "project_name" : project.project_name,
-        "file" : project.file,
-        "file_size": project.file_size,
-        "user" : project.user,
-        "creation_date" : str(project.creation_date),
+    return PostCommentSchema.parse_obj({
+        "id" : post.id,
+        "post_name" : post.post_name,
+        "file" : post.file,
+        "file_size": post.file_size,
+        "user" : post.user,
+        "creation_date" : str(post.creation_date),
         "comments": comment
     })
 
-@router.post('/projects', status_code=status.HTTP_200_OK)
-async def new_project(
-                project_name: str = Form(...),
+@router.post('/posts', status_code=status.HTTP_200_OK)
+async def new_post(
+                post_name: str = Form(...),
                 file: UploadFile = File(...),
                 # current_user:GetUserSchema = Depends(get_current_user),
                 db_session: Session = Depends(get_db)
-                ) -> ProjectSchema:
+                ) -> PostSchema:
     """
         Description
         -----------
@@ -113,8 +113,8 @@ async def new_project(
         detail="Arquivo não é valido, apenas mp3!"
     )
     save_file, file_size = await copy_file(file)
-    request = ProjectSchema.parse_obj({
-        "project_name":project_name,
+    request = PostSchema.parse_obj({
+        "post_name":post_name,
         "file":file.filename,
         "file_size": file_size,
         "user":1
@@ -124,8 +124,8 @@ async def new_project(
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
         detail="Erro ao salvar o arquivo no servidor, tente novamente!"
     )
-    project = create_project(request, db_session)
-    if project is None:
+    post = create_post(request, db_session)
+    if post is None:
         raise HTTPException(
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
         detail="Erro ao criar a música no banco de dados"
@@ -133,8 +133,8 @@ async def new_project(
 
     return request
 
-@router.get('/musics/{project_id}')
-def streamming_music(project_id:int,
+@router.get('/musics/{post_id}')
+def streamming_music(post_id:int,
                      db_session: Session = Depends(get_db),
                      range: str = Header(None)):
     """
@@ -147,15 +147,15 @@ def streamming_music(project_id:int,
         Raises
         ------
     """
-    project = get_project_by_id(project_id, db_session)
-    if project is None:
+    post = get_post_by_id(post_id, db_session)
+    if post is None:
         raise HTTPException(
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
         detail="Erro ao reproduzir a música"
     )
 
     if range is None:
-        start, end = CHUNK_SIZE, project.file_size
+        start, end = CHUNK_SIZE, post.file_size
         if start > end:
             start, end = 0, CHUNK_SIZE
     else:
@@ -164,10 +164,10 @@ def streamming_music(project_id:int,
     end = int(end) if end else start + CHUNK_SIZE
     headers = {
             'Accept-Ranges': 'bytes',
-            'Content-Range': f'bytes {str(start)}-{str(end)}/{project.file_size}',
+            'Content-Range': f'bytes {str(start)}-{str(end)}/{post.file_size}',
         }
 
-    return StreamingResponse(iterfile(project.file, start, end),
+    return StreamingResponse(iterfile(post.file, start, end),
                             headers=headers,
                             media_type="audio/mp3",
                             status_code=status.HTTP_206_PARTIAL_CONTENT)

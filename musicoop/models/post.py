@@ -8,13 +8,13 @@ from sqlalchemy.orm import relationship
 from musicoop.database import Base
 
 
-class Project(Base):
+class Post(Base):
     """
-      Classe responsável pela tabela project
+      Classe responsável pela tabela post
 
       Attributes
         ----------
-            project_name  : str
+            post_name  : str
                 Nome dá música
             path          : str
                 Caminho da música
@@ -25,18 +25,18 @@ class Project(Base):
             creation_date : time
                 Data de criação
     """
-    __tablename__="project"
+    __tablename__="post"
     id = Column(Integer, primary_key=True, index=True)
-    project_name = Column(String, nullable=False)
+    post_name = Column(String, nullable=False)
     file = Column(String, nullable=False)
     file_size = Column(Integer, nullable=False)
     user = Column(Integer, ForeignKey('user.id'))
     creation_date = Column(DateTime, default=datetime.now(),nullable=False)
 
-    comment_relation = relationship("Comment", back_populates="project_relation")
+    comment_relation = relationship("Comment", back_populates="post_relation")
 
-    def __init__(self, project_name=None,file=None,file_size=None,user=None):
-        self.project_name = project_name
+    def __init__(self, post_name=None,file=None,file_size=None,user=None):
+        self.post_name = post_name
         self.file = file
         self.user = user
         self.file_size = file_size
