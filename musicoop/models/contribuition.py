@@ -14,10 +14,10 @@ class Contribuition(Base):
             name          : str
                 Nome dá contribuição
             aproved       : boolean
-                Aprovação dá contribuição
-            file          : blob
-                Arquivo dá Contribuição
-            music         : int
+                Aprovação da contribuição
+            file          : str
+                Arquivo da Contribuição
+            project         : int
                 Nome dá Contribuição
             user          : int
                 ID do usuário que criou a Contribuição
@@ -29,6 +29,6 @@ class Contribuition(Base):
     name = Column(String, nullable=False)
     aproved = Column(Boolean, nullable=False)
     file = Column(LargeBinary, nullable=False)
-    music = Column(Integer, ForeignKey('post.id'))
+    post = Column(Integer, ForeignKey('post.id'))
     user = Column(Integer, ForeignKey('user.id'))
     creation_date = Column(Time, nullable=False)
