@@ -107,6 +107,11 @@ async def new_project(
         Raises
         ------
     """
+    if file.content_type != "audio/mp3" and file.content_type != "audio/mpeg":
+        raise HTTPException(
+        status_code=status.HTTP_406_NOT_ACCEPTABLE,
+        detail="Arquivo não é valido, apenas mp3!"
+    )
     save_file, file_size = await copy_file(file)
     request = ProjectSchema.parse_obj({
         "project_name":project_name,
@@ -114,11 +119,6 @@ async def new_project(
         "file_size": file_size,
         "user":1
     })
-    if file.content_type != "audio/mp3":
-        raise HTTPException(
-        status_code=status.HTTP_406_NOT_ACCEPTABLE,
-        detail="Arquivo não é valido, apenas mp3!"
-    )
     if save_file is False:
         raise HTTPException(
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
