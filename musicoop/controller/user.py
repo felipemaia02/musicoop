@@ -11,7 +11,6 @@ from musicoop.settings.logs import logging
 
 logger = logging.getLogger(__name__)
 
-
 def get_user(email: str, database: Session) -> User:
     """
       Description

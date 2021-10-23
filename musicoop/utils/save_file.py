@@ -52,7 +52,7 @@ def validate_size(max_size: int, file: UploadFile):
     logger.info("ARQUIVO POSSUI TAMANHO PERMITIDO")
     return True, real_file_size
 
-async def delete_file(path: str, file: UploadFile) -> bool:
+async def delete_file(file: UploadFile) -> bool:
     """
         Description
         -----------
@@ -61,8 +61,8 @@ async def delete_file(path: str, file: UploadFile) -> bool:
         ----------
     """
     try:
-        with open(path + file.filename, "wb"):
-            os.remove(path + file.filename)
+        with open("musicoop/static/" + file.filename, "wb"):
+            os.remove("musicoop/static/" + file.filename)
     except Exception as err:# pylint: disable=broad-except
         logger.info("NÃO FOI POSSIVEL REMOVER O PARA O DIRETORIO: %s", err)
 

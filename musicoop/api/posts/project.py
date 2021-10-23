@@ -11,7 +11,8 @@ from musicoop.settings.logs import logging
 from musicoop.database import get_db
 from musicoop.schemas.project import ProjectSchema, ProjectCommentSchema
 # from musicoop.schemas.user import GetUserSchema
-from musicoop.controller.project import get_projects, create_project, get_project_by_id
+from musicoop.controller.project import (get_projects, create_project,
+                                         get_project_by_id)
 from musicoop.controller.comment import get_comment_by_project
 # from musicoop.core.auth import get_current_user
 from musicoop.utils.save_file import copy_file
@@ -107,14 +108,12 @@ async def new_project(
         ------
     """
     save_file, file_size = await copy_file(file)
-
     request = ProjectSchema.parse_obj({
-    "project_name":project_name,
-    "file":file.filename,
-    "file_size": file_size,
-    "user":1
+        "project_name":project_name,
+        "file":file.filename,
+        "file_size": file_size,
+        "user":1
     })
-
     if save_file is False:
         raise HTTPException(
         status_code=status.HTTP_406_NOT_ACCEPTABLE,

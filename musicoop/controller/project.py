@@ -16,7 +16,6 @@ def get_projects(database: Session) -> List:
 
       Parameters
       ----------
-
     """
 
     projects = database.query(Project).order_by(Project.id.desc()).all()
@@ -66,3 +65,19 @@ def create_project(request: ProjectSchema,
     database.commit()
     logger.info("FOI CRIADO NO BANCO A SEGUINTE CONTRIBUIÇÃO: %s", new_project)
     return new_project
+
+def delete_project(project_id: int, database: Session) -> Project:
+    """
+      Description
+      -----------
+
+      Parameters
+      ----------
+    """
+
+    get_project = get_project_by_id(project_id, database)
+
+    database.delete(get_project)
+    database.commit()
+
+    return get_project
