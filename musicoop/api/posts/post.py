@@ -133,7 +133,7 @@ async def new_post(
 
     return request
 
-@router.get('/musics', status_code=status.HTTP_200_OK)
+@router.get('/musics', status_code=status.HTTP_206_PARTIAL_CONTENT)
 def streamming_music(post_id:int,
                      database: Session = Depends(get_db),
                      range: str = Header(None)): # pylint: disable=redefined-builtin
@@ -163,12 +163,16 @@ def streamming_music(post_id:int,
     end = int(end) if end else start + CHUNK_SIZE
     headers = {
             'Accept-Ranges': 'bytes',
-            'Content-Range': f'bytes {str(start)}-{str(end)}/{post.file_size}',
+            'Content-Range': f'bytes {str(start)}-{str(end)}/{str(post.file_size)}',
         }
     result_status = status.HTTP_206_PARTIAL_CONTENT
     if post.file_size < CHUNK_SIZE:
-        result_status = status.HTTP_200_OK
-    return StreamingResponse(iterfile(post.file, start, end),
+        headers = {
+            'Accept-Ranges': 'bytes',
+            'Content-Range': f'bytes {str(0)}-{str(0)}/{str(post.file_size)}',
+        }
+
+    return StreamingResponse(iterfile(post.file, start, end, post.file_size),
                             headers=headers,
                             media_type="audio/mp3",
                             status_code=result_status)
