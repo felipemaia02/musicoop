@@ -77,7 +77,7 @@ def getting_post_by_id(post_id:int,
     if post is None:
         raise HTTPException(
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
-        detail="Erro ao buscar projeto"
+        detail="Erro ao buscar post"
     )
 
     return PostCommentSchema.parse_obj({
@@ -161,11 +161,11 @@ def streamming_music(post_id:int,
         start, end = range.replace("bytes=", "").split("-")
     start = int(start)
     end = int(end) if end else start + CHUNK_SIZE
-    result_status = status.HTTP_206_PARTIAL_CONTENT
     headers = {
             'Accept-Ranges': 'bytes',
             'Content-Range': f'bytes {str(start)}-{str(end)}/{post.file_size}',
         }
+    result_status = status.HTTP_206_PARTIAL_CONTENT
     if post.file_size < CHUNK_SIZE:
         result_status = status.HTTP_200_OK
     return StreamingResponse(iterfile(post.file, start, end),

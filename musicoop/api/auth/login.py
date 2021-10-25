@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from fastapi_login.exceptions import InvalidCredentialsException
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.session import Session
 from starlette import status
-from sqlalchemy.exc import IntegrityError
 
 
 from musicoop.settings.logs import logging
@@ -127,9 +127,8 @@ def register_user(request: CreateUserSchema, database: Session = Depends(get_db)
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
         detail="Erro ao criar o usuário no banco de dados"
     )
-    user = UserSchema.parse_obj({
+    return UserSchema.parse_obj({
         "email": request.email,
         "username": request.username,
         "name": request.name
     })
-    return user
