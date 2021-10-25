@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 load_dotenv()
 
-@router.get("/comments/{post_id}", status_code=status.HTTP_200_OK)
-def get_comments(post_id : int ,db_session: Session = Depends(get_db)) -> GetCommentSchema:
+@router.get("/comment", status_code=status.HTTP_200_OK)
+def get_comments(post_id : int ,database: Session = Depends(get_db)) -> GetCommentSchema:
     """
         Description
         -----------
@@ -30,7 +30,7 @@ def get_comments(post_id : int ,db_session: Session = Depends(get_db)) -> GetCom
         ------
     """
 
-    comments = get_comment_by_post(post_id, db_session)
+    comments = get_comment_by_post(post_id, database)
 
     if not comments:
         raise HTTPException(
@@ -41,7 +41,7 @@ def get_comments(post_id : int ,db_session: Session = Depends(get_db)) -> GetCom
     return comments
 
 @router.post("/comments", status_code=status.HTTP_200_OK)
-def new_comments(request : CommentSchema ,db_session: Session = Depends(get_db)) -> CommentSchema:
+def new_comments(request : CommentSchema ,database: Session = Depends(get_db)) -> CommentSchema:
     """
         Description
         -----------
@@ -53,7 +53,7 @@ def new_comments(request : CommentSchema ,db_session: Session = Depends(get_db))
         ------
     """
 
-    comments = create_comment(request, 1,db_session)
+    comments = create_comment(request, 1,database)
 
     if comments is None:
         raise HTTPException(
@@ -66,8 +66,8 @@ def new_comments(request : CommentSchema ,db_session: Session = Depends(get_db))
         "comment":request.comment,
         })
 
-@router.delete("/comments/{comment_id}", status_code=status.HTTP_200_OK)
-def delete_comments(comment_id: int, db_session: Session = Depends(get_db)) -> CommentSchema:
+@router.delete("/comments", status_code=status.HTTP_200_OK)
+def delete_comments(comment_id: int, database: Session = Depends(get_db)) -> CommentSchema:
     """
         Description
         -----------
@@ -79,7 +79,7 @@ def delete_comments(comment_id: int, db_session: Session = Depends(get_db)) -> C
         ------
     """
 
-    deleted_comment = delete_comment(comment_id, db_session)
+    deleted_comment = delete_comment(comment_id, database)
     if deleted_comment is None:
         raise HTTPException(
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
@@ -88,10 +88,10 @@ def delete_comments(comment_id: int, db_session: Session = Depends(get_db)) -> C
 
     return deleted_comment
 
-@router.put("/comments/{comment_id}", status_code=status.HTTP_200_OK)
+@router.put("/comments", status_code=status.HTTP_200_OK)
 def update_routes(comment_id:int,
                   request: CommentUpdateSchema,
-                  db_session: Session = Depends(get_db)) -> CommentUpdateSchema:
+                  database: Session = Depends(get_db)) -> CommentUpdateSchema:
     """
         Description
         -----------
@@ -102,7 +102,7 @@ def update_routes(comment_id:int,
         Raises
         ------
     """
-    upated_comment = update_comment(request, comment_id, db_session)
+    upated_comment = update_comment(request, comment_id, database)
 
     if upated_comment is None:
         raise HTTPException(

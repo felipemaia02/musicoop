@@ -24,7 +24,7 @@ CHUNK_SIZE = 1024*1024
 load_dotenv()
 
 @router.get("/posts", status_code=status.HTTP_200_OK)
-def get_post(db_session: Session = Depends(get_db)) -> PostCommentSchema:
+def get_post(database: Session = Depends(get_db)) -> PostCommentSchema:
     """
         Description
         -----------
@@ -35,7 +35,7 @@ def get_post(db_session: Session = Depends(get_db)) -> PostCommentSchema:
         Raises
         ------
     """
-    posts = get_posts(db_session)
+    posts = get_posts(database)
 
     if not posts:
         raise HTTPException(
@@ -45,7 +45,7 @@ def get_post(db_session: Session = Depends(get_db)) -> PostCommentSchema:
 
     list_posts = []
     for post in posts:
-        comment = get_comment_by_post(post.id, db_session)
+        comment = get_comment_by_post(post.id, database)
         list_posts.append(PostCommentSchema.parse_obj({
         "id" : post.id,
         "post_name" : post.post_name,
@@ -58,9 +58,9 @@ def get_post(db_session: Session = Depends(get_db)) -> PostCommentSchema:
 
     return list_posts
 
-@router.get("/posts/{post_id}", status_code=status.HTTP_200_OK)
+@router.get("/post", status_code=status.HTTP_200_OK)
 def getting_post_by_id(post_id:int,
-                          db_session: Session = Depends(get_db)) -> PostCommentSchema:
+                       database: Session = Depends(get_db)) -> PostCommentSchema:
     """
         Description
         -----------
@@ -71,8 +71,8 @@ def getting_post_by_id(post_id:int,
         Raises
         ------
     """
-    post = get_post_by_id(post_id, db_session)
-    comment = get_comment_by_post(post_id, db_session)
+    post = get_post_by_id(post_id, database)
+    comment = get_comment_by_post(post_id, database)
 
     if post is None:
         raise HTTPException(
@@ -95,7 +95,7 @@ async def new_post(
                 post_name: str = Form(...),
                 file: UploadFile = File(...),
                 # current_user:GetUserSchema = Depends(get_current_user),
-                db_session: Session = Depends(get_db)
+                database: Session = Depends(get_db)
                 ) -> PostSchema:
     """
         Description
@@ -109,7 +109,7 @@ async def new_post(
     """
     if file.content_type != "audio/mp3" and file.content_type != "audio/mpeg":
         raise HTTPException(
-        status_code=status.HTTP_406_NOT_ACCEPTABLE,
+        status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         detail="Arquivo não é valido, apenas mp3!"
     )
     save_file, file_size = await copy_file(file)
@@ -121,10 +121,10 @@ async def new_post(
     })
     if save_file is False:
         raise HTTPException(
-        status_code=status.HTTP_406_NOT_ACCEPTABLE,
+        status_code=status.HTTP_417_EXPECTATION_FAILED,
         detail="Erro ao salvar o arquivo no servidor, tente novamente!"
     )
-    post = create_post(request, db_session)
+    post = create_post(request, database)
     if post is None:
         raise HTTPException(
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
@@ -133,10 +133,10 @@ async def new_post(
 
     return request
 
-@router.get('/musics/{post_id}')
+@router.get('/musics', status_code=status.HTTP_200_OK)
 def streamming_music(post_id:int,
-                     db_session: Session = Depends(get_db),
-                     range: str = Header(None)):
+                     database: Session = Depends(get_db),
+                     range: str = Header(None)): # pylint: disable=redefined-builtin
     """
         Description
         -----------
@@ -147,13 +147,12 @@ def streamming_music(post_id:int,
         Raises
         ------
     """
-    post = get_post_by_id(post_id, db_session)
+    post = get_post_by_id(post_id, database)
     if post is None:
         raise HTTPException(
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
         detail="Erro ao reproduzir a música"
     )
-
     if range is None:
         start, end = CHUNK_SIZE, post.file_size
         if start > end:
@@ -162,12 +161,14 @@ def streamming_music(post_id:int,
         start, end = range.replace("bytes=", "").split("-")
     start = int(start)
     end = int(end) if end else start + CHUNK_SIZE
+    result_status = status.HTTP_206_PARTIAL_CONTENT
     headers = {
             'Accept-Ranges': 'bytes',
             'Content-Range': f'bytes {str(start)}-{str(end)}/{post.file_size}',
         }
-
+    if post.file_size < CHUNK_SIZE:
+        result_status = status.HTTP_200_OK
     return StreamingResponse(iterfile(post.file, start, end),
                             headers=headers,
                             media_type="audio/mp3",
-                            status_code=status.HTTP_206_PARTIAL_CONTENT)
+                            status_code=result_status)

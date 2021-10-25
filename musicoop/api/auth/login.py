@@ -1,12 +1,15 @@
 """
 Módulo responsável por ações de login e obtenção do token do usuário
 """
+
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from fastapi_login.exceptions import InvalidCredentialsException
 from sqlalchemy.orm.session import Session
 from starlette import status
+from sqlalchemy.exc import IntegrityError
+
 
 from musicoop.settings.logs import logging
 from musicoop.database import get_db
@@ -25,7 +28,7 @@ load_dotenv()
 def check_logged_in(
                 incoming_token: str = Depends(oauth2_scheme),
                 current_user=Depends(auth.get_current_user),
-                db_session: Session = Depends(get_db)
+                database: Session = Depends(get_db)
             ) -> dict:
     """
         Description
@@ -41,7 +44,7 @@ def check_logged_in(
         -------
             Dicionário com usuário logado.
     """
-    user_token = get_user(current_user.email, db_session).access_token
+    user_token = get_user(current_user.email, database).access_token
     if incoming_token != user_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -94,7 +97,7 @@ def login_token(data: OAuth2PasswordRequestForm = Depends(),
                                 })
 
 @router.post('/user', status_code=status.HTTP_200_OK)
-def register_user(request: CreateUserSchema, db_session: Session = Depends(get_db)) -> UserSchema:
+def register_user(request: CreateUserSchema, database: Session = Depends(get_db)) -> UserSchema:
     """
         Description
         -----------
@@ -111,8 +114,13 @@ def register_user(request: CreateUserSchema, db_session: Session = Depends(get_d
         Raises
         ------
     """
-    new_user = create_user(request, db_session)
-    #TODO: VALIDA CASO E EMAIL E USUARIO EXISTAM NÃO PERMITIR CRIAR NOVA CONTA
+    try:
+        new_user = create_user(request, database)
+    except IntegrityError as err:
+        raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Email ou Usuário já cadastrado"
+    ) from err
 
     if new_user is None:
         raise HTTPException(

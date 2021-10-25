@@ -3,7 +3,7 @@
 """
 from functools import partial
 
-def iterfile(file, start, end):
+def iterfile(file: str, start: int, end: int) -> None:
     """
         Description
         -----------

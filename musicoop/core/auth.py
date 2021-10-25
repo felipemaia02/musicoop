@@ -21,7 +21,7 @@ manager = LoginManager(os.getenv('SECRET_KEY'), "/login")
 
 
 @manager.user_loader
-def load_user(email: str, db_session: Session) -> GetUserSchema:
+def load_user(email: str, database: Session) -> GetUserSchema:
     """Função responsável por buscar instância do usuário a partir do Email informado.
 
         Parameters
@@ -33,7 +33,7 @@ def load_user(email: str, db_session: Session) -> GetUserSchema:
         -------
             Instância de User do schema com informações da email, nome, username do usuário
     """
-    user = db_session.query(User).filter_by(email=email.lower()).one_or_none()
+    user = database.query(User).filter_by(email=email.lower()).one_or_none()
     if user is None:
         logger.info("NÃO FOI POSSÍVEL BUSCAR O USUÁRIO")
         raise InvalidCredentialsException
@@ -45,7 +45,7 @@ def load_user(email: str, db_session: Session) -> GetUserSchema:
                     )
 
 def get_current_user(token: str = Depends(oauth2_scheme),
-                     db_session: Session = Depends(get_db)) -> GetUserSchema:
+                     database: Session = Depends(get_db)) -> GetUserSchema:
     """
         Função responsável por buscar as informações do usuário ao verificar o token.
 
@@ -72,7 +72,7 @@ def get_current_user(token: str = Depends(oauth2_scheme),
         token_exp = datetime.strptime(payload.get("expire_token"), "%Y-%m-%d %H:%M:%S.%f")
         email: str = payload.get("email")
 
-        user_token = get_user(email, db_session).access_token
+        user_token = get_user(email, database).access_token
         if datetime.now() >= token_exp or token != user_token:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -83,7 +83,7 @@ def get_current_user(token: str = Depends(oauth2_scheme),
         if email is None:
             raise credentials_exception
 
-        user = load_user(email, db_session)
+        user = load_user(email, database)
         return user
     except JWTError as error:
         raise HTTPException(
