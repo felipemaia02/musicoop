@@ -4,7 +4,6 @@
 from functools import partial
 CHUNK_SIZE = 1024*1024
 
-
 def iterfile(file: str, start: int, end: int, size:int) -> None:
     """
         Description
