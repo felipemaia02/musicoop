@@ -3,7 +3,7 @@ Módulo responsável por ações de login e obtenção do token do usuário
 """
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Header
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
 from sqlalchemy.orm.session import Session
 from starlette import status
 
@@ -146,7 +146,7 @@ async def new_post(
 def streamming_music(post_id: int = None,
                      contribuition_id: int = None,
                      database: Session = Depends(get_db),
-                     range: str = Header(None)): # pylint: disable=redefined-builtin
+                     range: str = Header(None)) -> StreamingResponse: # pylint: disable=redefined-builtin
     """
         Description
         -----------
@@ -162,7 +162,6 @@ def streamming_music(post_id: int = None,
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         detail="Precisa passar um post_id ou uma contribuition_id"
     )
-
     path_type = "post"
     post = get_post_by_id(post_id, database)
     if contribuition_id:
@@ -185,7 +184,6 @@ def streamming_music(post_id: int = None,
             'Accept-Ranges': 'bytes',
             'Content-Range': f'bytes {str(start)}-{str(end)}/{str(post.file_size)}',
         }
-    result_status = status.HTTP_206_PARTIAL_CONTENT
     if post.file_size < CHUNK_SIZE:
         headers = {
             'Accept-Ranges': 'bytes',
@@ -195,4 +193,32 @@ def streamming_music(post_id: int = None,
     return StreamingResponse(iterfile(post.file, start, end, post.file_size, path_type),
                             headers=headers,
                             media_type="audio/mp3",
-                            status_code=result_status)
+                            status_code=status.HTTP_206_PARTIAL_CONTENT)
+
+@router.get("/download", status_code=status.HTTP_200_OK)
+async def download_file(post_id: int = None,
+                        contribuition_id: int = None,
+                        database: Session = Depends(get_db)) -> FileResponse:
+    """
+        Description
+        -----------
+        Parameters
+        ----------
+        Returns
+        -------
+        Raises
+        ------
+    """
+    if post_id is None and contribuition_id is None:
+        raise HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail="Precisa passar um post_id ou uma contribuition_id"
+    )
+    file_path = "musicoop/static/post/"
+    post = get_post_by_id(post_id, database)
+    if contribuition_id:
+        file_path = "musicoop/static/contribuition/"
+        post = get_contribuition_by_id(contribuition_id, database)
+
+    return FileResponse(path=file_path + post.file,
+                        filename=post.file)

@@ -17,6 +17,7 @@ python-jose = "^3.3.0"
 pydantic = "^1.8.2"
 autopep8 = "^1.5.7"
 python-multipart = "^0.0.5"
+aiofiles = "^0.7.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
