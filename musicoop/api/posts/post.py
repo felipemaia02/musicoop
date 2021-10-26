@@ -14,6 +14,7 @@ from musicoop.schemas.post import PostSchema, PostCommentSchema
 from musicoop.controller.post import (get_posts, create_post,
                                          get_post_by_id)
 from musicoop.controller.comment import get_comment_by_post
+from musicoop.controller.contribuition import get_contribuitions_by_post, get_contribuition_by_id
 # from musicoop.core.auth import get_current_user
 from musicoop.utils.save_file import copy_file
 from musicoop.utils.streamming import iterfile
@@ -46,14 +47,17 @@ def get_post(database: Session = Depends(get_db)) -> PostCommentSchema:
     list_posts = []
     for post in posts:
         comment = get_comment_by_post(post.id, database)
+        contribuition = get_contribuitions_by_post(post.id, database)
         list_posts.append(PostCommentSchema.parse_obj({
         "id" : post.id,
         "post_name" : post.post_name,
         "file" : post.file,
         "file_size": post.file_size,
+        "description": post.description,
         "user" : post.user,
         "creation_date" : str(post.creation_date),
-        "comments": comment
+        "comments": comment,
+        "contribuitions" : contribuition
         }))
 
     return list_posts
@@ -73,6 +77,7 @@ def getting_post_by_id(post_id:int,
     """
     post = get_post_by_id(post_id, database)
     comment = get_comment_by_post(post_id, database)
+    contribuition = get_contribuitions_by_post(post_id, database)
 
     if post is None:
         raise HTTPException(
@@ -85,14 +90,17 @@ def getting_post_by_id(post_id:int,
         "post_name" : post.post_name,
         "file" : post.file,
         "file_size": post.file_size,
+        "description": post.description,
         "user" : post.user,
         "creation_date" : str(post.creation_date),
-        "comments": comment
+        "comments": comment,
+        "contribuitions" : contribuition
     })
 
 @router.post('/posts', status_code=status.HTTP_200_OK)
 async def new_post(
                 post_name: str = Form(...),
+                description: str = Form(...),
                 file: UploadFile = File(...),
                 # current_user:GetUserSchema = Depends(get_current_user),
                 database: Session = Depends(get_db)
@@ -112,10 +120,11 @@ async def new_post(
         status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         detail="Arquivo não é valido, apenas mp3!"
     )
-    save_file, file_size = await copy_file(file)
+    save_file, file_size = await copy_file(file, "post/")
     request = PostSchema.parse_obj({
         "post_name":post_name,
         "file":file.filename,
+        "description": description,
         "file_size": file_size,
         "user":1
     })
@@ -134,7 +143,8 @@ async def new_post(
     return request
 
 @router.get('/musics', status_code=status.HTTP_206_PARTIAL_CONTENT)
-def streamming_music(post_id:int,
+def streamming_music(post_id: int = None,
+                     contribuition_id: int = None,
                      database: Session = Depends(get_db),
                      range: str = Header(None)): # pylint: disable=redefined-builtin
     """
@@ -147,7 +157,11 @@ def streamming_music(post_id:int,
         Raises
         ------
     """
+    path_type = "post"
     post = get_post_by_id(post_id, database)
+    if contribuition_id:
+        path_type = "contribuition"
+        post = get_contribuition_by_id(contribuition_id, database)
     if post is None:
         raise HTTPException(
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
@@ -172,7 +186,7 @@ def streamming_music(post_id:int,
             'Content-Range': f'bytes {str(0)}-{str(0)}/{str(post.file_size)}',
         }
 
-    return StreamingResponse(iterfile(post.file, start, end, post.file_size),
+    return StreamingResponse(iterfile(post.file, start, end, post.file_size, path_type),
                             headers=headers,
                             media_type="audio/mp3",
                             status_code=result_status)

@@ -30,13 +30,15 @@ class Post(Base):
     post_name = Column(String, nullable=False)
     file = Column(String, nullable=False)
     file_size = Column(Integer, nullable=False)
+    description = Column(String, nullable=False)
     user = Column(Integer, ForeignKey('user.id'))
     creation_date = Column(DateTime, default=datetime.now(),nullable=False)
 
     comment_relation = relationship("Comment", back_populates="post_relation")
 
-    def __init__(self, post_name=None,file=None,file_size=None,user=None):
+    def __init__(self, post_name=None,file=None,file_size=None,user=None,description=None):
         self.post_name = post_name
         self.file = file
+        self.description = description
         self.user = user
         self.file_size = file_size

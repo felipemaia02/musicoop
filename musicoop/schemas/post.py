@@ -2,6 +2,7 @@
     Módulo com o schema do usuário
 """
 
+from musicoop.models.contribuition import Contribuition
 from musicoop.schemas.base_schema import BaseSchema
 
 
@@ -12,6 +13,7 @@ class PostSchema(BaseSchema):
     post_name: str
     file: str
     file_size: int
+    description : str
     user : int
 class GetPostSchema(PostSchema):
     """
@@ -26,3 +28,4 @@ class PostCommentSchema(GetPostSchema):
     """
 
     comments: list
+    contribuitions : list

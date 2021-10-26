@@ -60,7 +60,8 @@ def create_post(request: PostSchema,
       ----------
     """
     new_post = Post(post_name=request.post_name,file=request.file,
-                          file_size=request.file_size,user=request.user)
+                          file_size=request.file_size,user=request.user,
+                          description=request.description)
     database.add(new_post)
     database.commit()
     logger.info("FOI CRIADO NO BANCO A SEGUINTE CONTRIBUIÇÃO: %s", new_post)
