@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "musicoop"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
-authors = ["Felipe <felipeoliveiramaia3@gmail.com>"]
+authors = ["Felipe Oliveira Maia <felipeoliveiramaia3@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -14,6 +14,10 @@ fastapi-login = "^1.6.3"
 python-dotenv = "^0.19.0"
 SQLAlchemy-Utils = "^0.37.8"
 python-jose = "^3.3.0"
+pydantic = "^1.8.2"
+autopep8 = "^1.5.7"
+python-multipart = "^0.0.5"
+aiofiles = "^0.7.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

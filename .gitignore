@@ -1,0 +1,7 @@
+# Cache
+__pycache__/
+
+.env
+.vscode
+musicoop/static/post/*
+musicoop/static/contribuition/*
