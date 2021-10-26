@@ -157,6 +157,12 @@ def streamming_music(post_id: int = None,
         Raises
         ------
     """
+    if post_id is None and contribuition_id is None:
+        raise HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail="Precisa passar um post_id ou uma contribuition_id"
+    )
+
     path_type = "post"
     post = get_post_by_id(post_id, database)
     if contribuition_id:
