@@ -1,12 +1,15 @@
 """
 Módulo responsável por ações de login e obtenção do token do usuário
 """
+
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm #OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from fastapi_login.exceptions import InvalidCredentialsException
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.session import Session
 from starlette import status
+
 
 from musicoop.settings.logs import logging
 from musicoop.database import get_db
@@ -14,10 +17,41 @@ from musicoop.schemas.token import TokenSchema
 from musicoop.schemas.user import UserSchema, CreateUserSchema
 from musicoop.controller.user import get_user, create_user
 from musicoop.utils.login import create_access_token
+from musicoop.core import auth
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 load_dotenv()
+
+@router.get("/auth/token", status_code=status.HTTP_200_OK)
+def check_logged_in(
+                incoming_token: str = Depends(oauth2_scheme),
+                current_user=Depends(auth.get_current_user),
+                database: Session = Depends(get_db)
+            ) -> dict:
+    """
+        Description
+        -----------
+            Função responsável por buscar instância do usuário a partir do email informada.
+
+        Parameters
+        ----------
+            current_user : str
+                email do usuário que deseja buscar no banco de dados.
+
+        Returns
+        -------
+            Dicionário com usuário logado.
+    """
+    user_token = get_user(current_user.email, database).access_token
+    if incoming_token != user_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido!",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return {'success': current_user}
 
 @router.post("/login", status_code=status.HTTP_200_OK, response_model=TokenSchema)
 def login_token(data: OAuth2PasswordRequestForm = Depends(),
@@ -63,7 +97,7 @@ def login_token(data: OAuth2PasswordRequestForm = Depends(),
                                 })
 
 @router.post('/user', status_code=status.HTTP_200_OK)
-def register_user(request: CreateUserSchema, db_session: Session = Depends(get_db)) -> UserSchema:
+def register_user(request: CreateUserSchema, database: Session = Depends(get_db)) -> UserSchema:
     """
         Description
         -----------
@@ -80,16 +114,21 @@ def register_user(request: CreateUserSchema, db_session: Session = Depends(get_d
         Raises
         ------
     """
-    new_user = create_user(request, db_session)
+    try:
+        new_user = create_user(request, database)
+    except IntegrityError as err:
+        raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Email ou Usuário já cadastrado"
+    ) from err
 
     if new_user is None:
         raise HTTPException(
         status_code=status.HTTP_406_NOT_ACCEPTABLE,
         detail="Erro ao criar o usuário no banco de dados"
     )
-    user = UserSchema.parse_obj({
+    return UserSchema.parse_obj({
         "email": request.email,
         "username": request.username,
         "name": request.name
     })
-    return user

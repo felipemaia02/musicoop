@@ -27,5 +27,5 @@ def create_access_token(data: dict) -> str:
     expire_date = datetime.utcnow() + timedelta(hours=int(os.getenv('ACCESS_TOKEN_EXPIRE_HOURS')))
     data.update({"expire_token": str(expire_date)})
     refresh_token = jwt.encode(data, os.getenv('SECRET_KEY'), algorithm="HS256")
-    logger.info("REFRESH TOKEN GERADO COM SUCESSO")
+    logger.info("ACCESS TOKEN GERADO COM SUCESSO")
     return refresh_token

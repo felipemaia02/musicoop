@@ -2,15 +2,14 @@
     Módulo responsavel pelos métados de querys com a tabela usuário
 """
 
-from sqlalchemy.orm import Session
 import hashlib
+from sqlalchemy.orm import Session
 
 from musicoop.schemas.user import CreateUserSchema
 from musicoop.models.user import User
 from musicoop.settings.logs import logging
 
 logger = logging.getLogger(__name__)
-
 
 def get_user(email: str, database: Session) -> User:
     """

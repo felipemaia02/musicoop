@@ -12,7 +12,7 @@ class Vote(Base):
 
       Attributes
         ----------
-            music         : int
+            post         : int
                 ID da música
             contribuition : int
                 ID da contribuição da música
@@ -23,7 +23,7 @@ class Vote(Base):
     """
     __tablename__="vote"
     id = Column(Integer, primary_key=True, index=True)
-    music = Column(Integer, ForeignKey('music.id'))
+    post = Column(Integer, ForeignKey('post.id'))
     contribuition = Column(Integer, ForeignKey('contribuition.id'))
     user = Column(Integer, ForeignKey('user.id'))
     creation_date = Column(Time, nullable=False)

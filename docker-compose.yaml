@@ -1,0 +1,31 @@
+version: "3.1"
+
+services:
+  db:
+    image: postgres:13.4
+    container_name: musicoop-db
+    restart: always
+    networks:
+      - musicoop-network
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
+    environment:
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: musicoop
+  api:
+    build: .
+    image: musicoop_api
+    container_name: musicoop-api
+    restart: on-failure
+    ports:
+      - 8000:8000
+    networks:
+      - musicoop-network
+    depends_on:
+      - db
+
+networks:
+  musicoop-network:

@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from musicoop.database import Base, engine
 from musicoop.settings.logs import logging
-from musicoop.api.routes import auth
+from musicoop.api.routes import auth, posts
 
 logger = logging.getLogger(__name__)
 app = FastAPI(title="Musicoop", description="")
@@ -34,6 +34,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.api_router)
+app.include_router(posts.api_router)
 
 try:
     Base.metadata.create_all(engine)

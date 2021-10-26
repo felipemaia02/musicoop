@@ -12,6 +12,12 @@ class UserSchema(BaseSchema):
     username: str
     name : str
 
+class GetUserSchema(UserSchema):
+    """
+        Classe que contém os atributos de um Usuário
+    """
+    id:int
+
 class CreateUserSchema(UserSchema):
     """
         Classe que contém os atributos para criar um usuário

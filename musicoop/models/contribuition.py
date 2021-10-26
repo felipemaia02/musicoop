@@ -1,8 +1,8 @@
 """
 Model responsável por salvar usuários da aplicação
 """
-from sqlalchemy import Column, Integer,String, ForeignKey, Time, Boolean, LargeBinary
-
+from sqlalchemy import Column, Integer,String, ForeignKey, DateTime, Boolean
+from datetime import datetime
 from musicoop.database import Base
 
 class Contribuition(Base):
@@ -14,10 +14,12 @@ class Contribuition(Base):
             name          : str
                 Nome dá contribuição
             aproved       : boolean
-                Aprovação dá contribuição
-            file          : blob
-                Arquivo dá Contribuição
-            music         : int
+                Aprovação da contribuição
+            file          : str
+                Arquivo da Contribuição
+            file_size     : int
+                Tamanho do Arquivo de Contribuição
+            post         : int
                 Nome dá Contribuição
             user          : int
                 ID do usuário que criou a Contribuição
@@ -27,8 +29,18 @@ class Contribuition(Base):
     __tablename__="contribuition"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    aproved = Column(Boolean, nullable=False)
-    file = Column(LargeBinary, nullable=False)
-    music = Column(Integer, ForeignKey('music.id'))
+    aproved = Column(Boolean, default=False, nullable=False)
+    file = Column(String, nullable=False)
+    file_size = Column(Integer, nullable=False)
+    description = Column(String, nullable=False)
+    post = Column(Integer, ForeignKey('post.id'))
     user = Column(Integer, ForeignKey('user.id'))
-    creation_date = Column(Time, nullable=False)
+    creation_date = Column(DateTime, default=datetime.now(),nullable=False)
+
+    def __init__(self, name=None,file=None,file_size=None,user=None,post=None,description=None):
+        self.name = name
+        self.file = file
+        self.user = user
+        self.description = description
+        self.post = post
+        self.file_size = file_size
