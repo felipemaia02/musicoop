@@ -1,3 +1,4 @@
 .env
 .vscode
-musicoop/static/*
+musicoop/static/post/*
+musicoop/static/contribuition/*

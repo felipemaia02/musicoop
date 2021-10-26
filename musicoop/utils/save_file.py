@@ -9,7 +9,7 @@ from musicoop.settings.logs import logging
 
 logger = logging.getLogger(__name__)
 
-async def copy_file(file: UploadFile) -> bool:
+async def copy_file(file: UploadFile, type: str) -> bool:
     """
         Description
         -----------
@@ -18,10 +18,10 @@ async def copy_file(file: UploadFile) -> bool:
         ----------
     """
     try:
-        with open( "musicoop/static/" + file.filename, "wb") as buffer:
+        with open( "musicoop/static/" + type + file.filename, "wb") as buffer:
             logger.info("ARQUVO COPIADO COM SUCESSO PARA O DIRETÓRIO")
             shutil.copyfileobj(file.file, buffer)
-            file_size = os.path.getsize("musicoop/static/" + file.filename)
+            file_size = os.path.getsize("musicoop/static/" + type + file.filename)
 
     except Exception as err:# pylint: disable=broad-except
         logger.info("NÃO FOI POSSIVEL ENVIAR O PARA O DIRETORIO: %s", err)
@@ -52,7 +52,7 @@ def validate_size(max_size: int, file: UploadFile):
     logger.info("ARQUIVO POSSUI TAMANHO PERMITIDO")
     return True, real_file_size
 
-async def delete_file(file: UploadFile) -> bool:
+async def delete_file(file: UploadFile, type: str) -> bool:
     """
         Description
         -----------
@@ -61,8 +61,8 @@ async def delete_file(file: UploadFile) -> bool:
         ----------
     """
     try:
-        with open("musicoop/static/" + file.filename, "wb"):
-            os.remove("musicoop/static/" + file.filename)
+        with open("musicoop/static/" + type + file.filename, "wb"):
+            os.remove("musicoop/static/" + type + file.filename)
     except Exception as err:# pylint: disable=broad-except
         logger.info("NÃO FOI POSSIVEL REMOVER O PARA O DIRETORIO: %s", err)
 
