@@ -2,6 +2,8 @@ FROM tiangolo/uvicorn-gunicorn:python3.8-alpine3.10
 
 WORKDIR /musicoop
 
+COPY ./start.sh /start.sh
+
 # Install GCC
 RUN apk add --no-cache --virtual .build-deps postgresql-dev \
     gcc libc-dev libffi-dev libpq build-base
@@ -20,4 +22,6 @@ COPY . /musicoop
 
 RUN cd musicoop
 
-CMD ["uvicorn", "musicoop.app:app","--host", "0.0.0.0", "--port", "8000"]
+RUN chmod +x start.sh
+
+CMD ["./start.sh"]

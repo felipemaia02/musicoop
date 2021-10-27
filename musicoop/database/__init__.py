@@ -10,7 +10,6 @@ from sqlalchemy_utils import database_exists, create_database
 from dotenv import load_dotenv
 from musicoop.settings.logs import logging
 
-
 logger = logging.getLogger(__name__)
 Base = declarative_base()
 load_dotenv()
