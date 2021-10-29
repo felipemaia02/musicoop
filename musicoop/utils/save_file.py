@@ -5,9 +5,12 @@ import shutil
 import os
 from fastapi import UploadFile
 from musicoop.settings.logs import logging
+from dotenv import load_dotenv
 
+load_dotenv()
 
 logger = logging.getLogger(__name__)
+
 
 async def copy_file(file: UploadFile, type: str) -> bool:
     """
@@ -18,12 +21,14 @@ async def copy_file(file: UploadFile, type: str) -> bool:
         ----------
     """
     try:
-        with open( "musicoop/static/" + type + file.filename, "wb") as buffer:
-            logger.info("ARQUVO COPIADO COM SUCESSO PARA O DIRETÓRIO")
+        with open(os.getenv('MUSIC_PATH') + type + file.filename, "wb") as buffer:
+            logger.info("ARQUVO COPIADO COM SUCESSO PARA O DIRETÓRIO",
+                        os.getenv('MUSIC_PATH') + type + file.filename)
             shutil.copyfileobj(file.file, buffer)
-            file_size = os.path.getsize("musicoop/static/" + type + file.filename)
+            file_size = os.path.getsize(
+                "musicoop/static/" + type + file.filename)
 
-    except Exception as err:# pylint: disable=broad-except
+    except Exception as err:  # pylint: disable=broad-except
         logger.info("NÃO FOI POSSIVEL ENVIAR O PARA O DIRETORIO: %s", err)
 
         return False
@@ -33,6 +38,7 @@ async def copy_file(file: UploadFile, type: str) -> bool:
         await file.close()
 
     return True, file_size
+
 
 def validate_size(max_size: int, file: UploadFile):
     """
@@ -52,6 +58,7 @@ def validate_size(max_size: int, file: UploadFile):
     logger.info("ARQUIVO POSSUI TAMANHO PERMITIDO")
     return True, real_file_size
 
+
 async def delete_file(file: UploadFile, type: str) -> bool:
     """
         Description
@@ -63,7 +70,7 @@ async def delete_file(file: UploadFile, type: str) -> bool:
     try:
         with open("musicoop/static/" + type + file.filename, "wb"):
             os.remove("musicoop/static/" + type + file.filename)
-    except Exception as err:# pylint: disable=broad-except
+    except Exception as err:  # pylint: disable=broad-except
         logger.info("NÃO FOI POSSIVEL REMOVER O PARA O DIRETORIO: %s", err)
 
         return False
