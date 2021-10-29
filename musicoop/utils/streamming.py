@@ -1,7 +1,11 @@
 """
     Modulo
 """
+import os
 from functools import partial
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def iterfile(file: str, start: int, end: int, path_type: str) -> None:
@@ -17,7 +21,7 @@ def iterfile(file: str, start: int, end: int, path_type: str) -> None:
     """
 
     file_like = None
-    with open("musicoop/static/" + path_type + "/" + file, mode="rb") as file_like:
+    with open(os.getenv('MUSIC_PATH') + path_type + "/" + file, mode="rb") as file_like:
         file_like.seek(start)
         reader = partial(file_like.read, end - start)
         file_iterator = iter(reader, bytes())
