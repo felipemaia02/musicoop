@@ -22,7 +22,7 @@ async def copy_file(file: UploadFile, type: str) -> bool:
     """
     try:
         with open(os.getenv('MUSIC_PATH') + type + file.filename, "wb") as buffer:
-            logger.info("ARQUVO COPIADO COM SUCESSO PARA O DIRETÓRIO",
+            logger.info("ARQUVO COPIADO COM SUCESSO PARA O DIRETÓRIO" +
                         os.getenv('MUSIC_PATH') + type + file.filename)
             shutil.copyfileobj(file.file, buffer)
             file_size = os.path.getsize(
