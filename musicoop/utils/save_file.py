@@ -9,7 +9,6 @@ from musicoop.settings.logs import logging
 from dotenv import load_dotenv
 from botocore.exceptions import ClientError
 from musicoop.utils.aws_connection import connection_aws
-from musicoop.utils.save_file import delete_all_files
 
 load_dotenv()
 
