@@ -17,7 +17,7 @@ load_dotenv()
 
 try:
     engine = create_engine(os.getenv('SQLALCHAMY_DATABASE_URL'), encoding="utf-8",
-                            pool_pre_ping=True)
+                           pool_pre_ping=True)
     SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
     if not database_exists(engine.url):
         logger.info("A Base de Dados não existe. Tentando criar...")
@@ -27,8 +27,10 @@ try:
     Base.metadata.create_all(engine)
 except AttributeError as error:
     logger.info("ERRO ao criar conexão com o Banco de Dados: %s", error)
-except Exception as error: # pylint: disable=broad-except
-    logger.info("Ocorreu algum erro ao criar conexão com o Banco de Dados: %s", error)
+except Exception as error:  # pylint: disable=broad-except
+    logger.info(
+        "Ocorreu algum erro ao criar conexão com o Banco de Dados: %s", error)
+
 
 def get_db() -> Generator:
     """
@@ -40,8 +42,9 @@ def get_db() -> Generator:
         try:
             yield database
         except Exception as err:  # pylint: disable=broad-except
-            logger.info("Ocorreu algum erro durante a execução de query Banco de Dados: %s", err)
+            logger.info("Ocorreu algum erro durante a execução: %s", err)
         finally:
             database.close()
-    except Exception as err: # pylint: disable=broad-except
-        logger.info("Ocorreu algum erro durante a busca da instância do Banco de Dados: %s", err)
+    except Exception as err:  # pylint: disable=broad-except
+        logger.info(
+            "Ocorreu algum erro durante durante a execução da instância: %s", err)

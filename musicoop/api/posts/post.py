@@ -1,11 +1,13 @@
 """
 Módulo responsável por ações de login e obtenção do token do usuário
 """
+import os
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Header
 from fastapi.responses import StreamingResponse, FileResponse
 from sqlalchemy.orm.session import Session
 from starlette import status
+from awscli.customizations.s3.utils import split_s3_bucket_key
 
 from musicoop.settings.logs import logging
 from musicoop.database import get_db
@@ -16,8 +18,9 @@ from musicoop.controller.post import (get_posts, create_post,
 from musicoop.controller.comment import get_comment_by_post
 from musicoop.controller.contribuition import get_contribuitions_by_post, get_contribuition_by_id
 # from musicoop.core.auth import get_current_user
-from musicoop.utils.save_file import copy_file
+from musicoop.utils.save_file import copy_file, delete_all_files
 from musicoop.utils.streamming import iterfile
+from musicoop.utils.aws_connection import connection_aws
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -124,6 +127,7 @@ async def new_post(
             detail="Arquivo não é valido, apenas mp3!"
         )
     save_file, file_size = await copy_file(file, "post/")
+
     request = PostSchema.parse_obj({
         "post_name": post_name,
         "file": file.filename,
@@ -166,11 +170,20 @@ def streamming_music(post_id: int = None,
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Precisa passar um post_id ou uma contribuition_id"
         )
-    path_type = "post"
+    path_type = "post/"
     post = get_post_by_id(post_id, database)
     if contribuition_id:
-        path_type = "contribuition"
+        path_type = "contribuition/"
         post = get_contribuition_by_id(contribuition_id, database)
+
+    delete_all_files(path_type)
+
+    if os.getenv("SERVER_TYPE") == "PROD":
+        s3_client = connection_aws()
+        file_aws_path = path_type + post.file
+
+        s3_client.download_file(os.getenv(
+            "BUCKET_NAME"), file_aws_path, os.getenv("MUSIC_PATH") + file_aws_path)
 
     if post is None:
         raise HTTPException(
@@ -220,11 +233,23 @@ async def download_file(post_id: int = None,
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Precisa passar um post_id ou uma contribuition_id"
         )
-    file_path = "musicoop/static/post/"
-    post = get_post_by_id(post_id, database)
-    if contribuition_id:
-        file_path = "musicoop/static/contribuition/"
-        post = get_contribuition_by_id(contribuition_id, database)
 
-    return FileResponse(path=file_path + post.file,
+    post = get_post_by_id(post_id, database)
+    type_path = "post/"
+    if contribuition_id:
+        type_path = "contribuition/"
+        post = get_contribuition_by_id(contribuition_id, database)
+    delete_all_files(type_path)
+    if os.getenv("SERVER_TYPE") == "PROD":
+        s3_client = connection_aws()
+        file_aws_path = type_path + post.file
+
+        s3_client.download_file(os.getenv(
+            "BUCKET_NAME"), file_aws_path, os.getenv("MUSIC_PATH") + file_aws_path)
+
+        path = os.getenv("MUSIC_PATH") + type_path + post.file
+    else:
+        path = os.getenv("MUSIC_PATH") + type_path + post.file
+
+    return FileResponse(path=path,
                         filename=post.file)
