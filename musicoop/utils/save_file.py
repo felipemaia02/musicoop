@@ -9,6 +9,7 @@ from musicoop.settings.logs import logging
 from dotenv import load_dotenv
 from botocore.exceptions import ClientError
 from musicoop.utils.aws_connection import connection_aws
+from musicoop.utils.save_file import delete_all_files
 
 load_dotenv()
 
@@ -30,6 +31,7 @@ async def copy_file(file: UploadFile, type: str) -> bool:
             shutil.copyfileobj(file.file, buffer)
             file_size = os.path.getsize(path)
             if os.getenv('SERVER_TYPE') == "PROD":
+                delete_all_files(os.getenv('MUSIC_PATH') + type)
                 upload_file_aws(path,
                                 os.getenv('BUCKET_NAME'),
                                 type + file.filename)

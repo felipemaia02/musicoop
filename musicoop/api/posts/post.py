@@ -176,9 +176,8 @@ def streamming_music(post_id: int = None,
         path_type = "contribuition/"
         post = get_contribuition_by_id(contribuition_id, database)
 
-    delete_all_files(path_type)
-
     if os.getenv("SERVER_TYPE") == "PROD":
+        delete_all_files(path_type)
         s3_client = connection_aws()
         file_aws_path = path_type + post.file
 
@@ -239,8 +238,8 @@ async def download_file(post_id: int = None,
     if contribuition_id:
         type_path = "contribuition/"
         post = get_contribuition_by_id(contribuition_id, database)
-    delete_all_files(type_path)
     if os.getenv("SERVER_TYPE") == "PROD":
+        delete_all_files(type_path)
         s3_client = connection_aws()
         file_aws_path = type_path + post.file
 
