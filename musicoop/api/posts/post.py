@@ -7,7 +7,6 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, H
 from fastapi.responses import StreamingResponse, FileResponse
 from sqlalchemy.orm.session import Session
 from starlette import status
-from awscli.customizations.s3.utils import split_s3_bucket_key
 
 from musicoop.settings.logs import logging
 from musicoop.database import get_db
