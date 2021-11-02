@@ -120,7 +120,7 @@ async def new_post(
         Raises
         ------
     """
-    if file.content_type != "audio/mp3" and file.content_type != "audio/mpeg":
+    if file.content_type != "audio/mpeg":
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
             detail="Arquivo não é valido, apenas mp3!"
@@ -175,14 +175,6 @@ def streamming_music(post_id: int = None,
         path_type = "contribuition/"
         post = get_contribuition_by_id(contribuition_id, database)
 
-    if os.getenv("SERVER_TYPE") == "PROD":
-        delete_all_files(path_type)
-        s3_client = connection_aws()
-        file_aws_path = path_type + post.file
-
-        s3_client.download_file(os.getenv(
-            "BUCKET_NAME"), file_aws_path, os.getenv("MUSIC_PATH") + file_aws_path)
-
     if post is None:
         raise HTTPException(
             status_code=status.HTTP_406_NOT_ACCEPTABLE,
@@ -208,7 +200,7 @@ def streamming_music(post_id: int = None,
 
     return StreamingResponse(iterfile(post.file, start, end, path_type),
                              headers=headers,
-                             media_type="audio/mp3",
+                             media_type="audio/mpeg",
                              status_code=status.HTTP_206_PARTIAL_CONTENT)
 
 
