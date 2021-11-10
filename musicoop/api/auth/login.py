@@ -139,7 +139,7 @@ def register_user(request: CreateUserSchema, database: Session = Depends(get_db)
 
 
 @router.get('/user', status_code=status.HTTP_200_OK)
-def get_user(id: int, database: Session = Depends(get_db)) -> GetUserSchema:
+def get_all_users(id: int, database: Session = Depends(get_db)) -> GetUserSchema:
     """
         Description
         -----------
