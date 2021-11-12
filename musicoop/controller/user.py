@@ -12,7 +12,7 @@ from musicoop.settings.logs import logging
 logger = logging.getLogger(__name__)
 
 
-def get_user(email: str, database: Session) -> User:
+def get_user(email: str, database: Session, password: str = None) -> User:
     """
       Description
       -----------
@@ -28,8 +28,12 @@ def get_user(email: str, database: Session) -> User:
         Usuário
 
     """
+    user = database.query(User).filter(
+        User.email == email, User.password == password).first()
+    if password is None:
+        user = database.query(User).filter(
+            User.email == email).first()
 
-    user = database.query(User).filter(User.email == email).first()
     logger.info("FOI RETORNADO DO BANCO O SEGUINTE EMAIL: %s", email)
 
     return user

@@ -26,7 +26,7 @@ async def copy_file(file: UploadFile, type: str) -> bool:
     try:
         path = os.getenv('MUSIC_PATH') + type + file.filename
         with open(path, "wb") as buffer:
-            logger.info("ARQUVO COPIADO COM SUCESSO PARA O DIRETÓRIO", path)
+            logger.info("ARQUVO COPIADO COM SUCESSO PARA O DIRETÓRIO")
             shutil.copyfileobj(file.file, buffer)
             file_size = os.path.getsize(path)
             if os.getenv('SERVER_TYPE') == "PROD":

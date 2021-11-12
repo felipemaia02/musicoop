@@ -1,8 +1,7 @@
 """
 Módulo responsável por ações de login e obtenção do token do usuário
 """
-
-from os import name
+import hashlib
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
@@ -79,8 +78,10 @@ def login_token(data: OAuth2PasswordRequestForm = Depends(),
             InvalidCredentialsException - Caso as credenciais sejam inválidas
     """
     email = data.username.lower()
+    password_text = data.password.lower()
+    password = hashlib.sha256(password_text.encode()).hexdigest()
     try:
-        user = get_user(email, database)
+        user = get_user(email=email, database=database, password=password)
     except ConnectionError as err:
         raise HTTPException(status.HTTP_424_FAILED_DEPENDENCY) from err
     if user is None:
@@ -88,7 +89,8 @@ def login_token(data: OAuth2PasswordRequestForm = Depends(),
         raise InvalidCredentialsException
     logger.info("USUÁRIO %s LOGADO COM SUCESSO", email)
     access_token = create_access_token({
-        "email": email,
+        "email": user.email,
+        "username": user.username,
     })
 
     user.access_token = access_token

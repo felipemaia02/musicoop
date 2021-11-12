@@ -54,7 +54,6 @@ def get_contribuition_by_id(contribuition_id:int, database: Session) -> Contribu
     return contribuition
 
 def create_contribuition(request: ContribuitionSchema,
-                         current_user: int,
                          database: Session) -> Contribuition:
     """
       Description
