@@ -54,10 +54,6 @@ def get_contribuitions(post_id: int,
 
     return contribuitions
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 8d471451e02627a2adf5b6befdd5fc56867b1b1c
 @router.post("/contribuitions", status_code=status.HTTP_200_OK)
 async def new_contribuitions(post_id: int,
                              name: str = Form(...),
