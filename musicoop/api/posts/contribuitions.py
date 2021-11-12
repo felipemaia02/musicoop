@@ -45,7 +45,7 @@ def get_contribuitions(post_id: int ,database: Session = Depends(get_db)) -> Get
 async def new_contribuitions(post_id: int,
                              name: str = Form(...),
                              description: str = Form(...),
-                             file: UploadFile = File(...),
+                             file: UploadFile = File(None),
                              # current_user:GetUserSchema = Depends(get_current_user),
                              database: Session = Depends(get_db)
                              ) -> ContribuitionSchema:
@@ -59,23 +59,24 @@ async def new_contribuitions(post_id: int,
         Raises
         ------
     """
-    if file.content_type != "audio/mp3" and file.content_type != "audio/mpeg":
-        raise HTTPException(
-        status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-        detail="Arquivo não é valido, apenas mp3!"
-    )
-    save_file, file_size = await copy_file(file, "contribuition/")
+    if file is not None:
+        if file.content_type != "audio/mp3" and file.content_type != "audio/mpeg":
+            raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail="Arquivo não é valido, apenas mp3!"
+        )    
+        save_file, file_size = await copy_file(file, "contribuition/")
 
-    if save_file is False:
-        raise HTTPException(
-        status_code=status.HTTP_417_EXPECTATION_FAILED,
-        detail="Erro ao salvar o arquivo no servidor, tente novamente!"
-    )
+        if save_file is False:
+            raise HTTPException(
+            status_code=status.HTTP_417_EXPECTATION_FAILED,
+            detail="Erro ao salvar o arquivo no servidor, tente novamente!"
+        )
 
     request = ContribuitionSchema.parse_obj({
         "name": name,
-        "file": file.filename,
-        "file_size": file_size,
+        "file": file.filename if file is not None else "",
+        "file_size": file_size if file is not None else 0,
         "description": description,
         "post": post_id,
         "user" : 1,

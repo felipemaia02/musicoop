@@ -53,6 +53,8 @@ def create_contribuition(request: ContribuitionSchema,
                           description=request.description)
     database.add(new_contribuition)
     database.commit()
+    if Contribuition.file is None:
+      logger.info("NÃO FOI ENVIADO NENHUM ARQUIVO NESTA CONTRIBUIÇÃO")
     logger.info("FOI CRIADO NO BANCO A SEGUINTE CONTRIBUIÇÃO: %s", new_contribuition)
     return new_contribuition
 
