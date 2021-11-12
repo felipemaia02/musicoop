@@ -11,12 +11,12 @@ from starlette import status
 from musicoop.settings.logs import logging
 from musicoop.database import get_db
 from musicoop.schemas.post import PostSchema, PostCommentSchema
-# from musicoop.schemas.user import GetUserSchema
+from musicoop.schemas.user import GetUserSchema
 from musicoop.controller.post import (get_posts, create_post,
                                       get_post_by_id)
 from musicoop.controller.comment import get_comment_by_post
 from musicoop.controller.contribuition import get_contribuitions_by_post, get_contribuition_by_id
-# from musicoop.core.auth import get_current_user
+from musicoop.core.auth import get_current_user
 from musicoop.utils.save_file import copy_file, delete_all_files
 from musicoop.utils.streamming import iterfile
 from musicoop.utils.aws_connection import connection_aws
@@ -28,7 +28,8 @@ load_dotenv()
 
 
 @router.get("/posts", status_code=status.HTTP_200_OK)
-def get_post(database: Session = Depends(get_db)) -> PostCommentSchema:
+def get_post(current_user: GetUserSchema = Depends(get_current_user),
+             database: Session = Depends(get_db)) -> PostCommentSchema:
     """
         Description
         -----------
@@ -68,6 +69,7 @@ def get_post(database: Session = Depends(get_db)) -> PostCommentSchema:
 
 @router.get("/post", status_code=status.HTTP_200_OK)
 def getting_post_by_id(post_id: int,
+                       current_user: GetUserSchema = Depends(get_current_user),
                        database: Session = Depends(get_db)) -> PostCommentSchema:
     """
         Description
@@ -107,7 +109,7 @@ async def new_post(
     post_name: str = Form(...),
     description: str = Form(...),
     file: UploadFile = File(...),
-    # current_user:GetUserSchema = Depends(get_current_user),
+    current_user: GetUserSchema = Depends(get_current_user),
     database: Session = Depends(get_db)
 ) -> PostSchema:
     """
@@ -120,6 +122,7 @@ async def new_post(
         Raises
         ------
     """
+    print(current_user)
     if file.content_type != "audio/mpeg":
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
@@ -132,7 +135,7 @@ async def new_post(
         "file": file.filename,
         "description": description,
         "file_size": file_size,
-        "user": 1
+        "user": current_user.id
     })
     if save_file is False:
         raise HTTPException(

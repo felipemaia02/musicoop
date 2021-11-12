@@ -21,7 +21,7 @@ manager = LoginManager(os.getenv('SECRET_KEY'), "/login")
 
 
 @manager.user_loader
-def load_user(email: str, database: Session) -> GetUserSchema:
+def load_user(email: str, username: str, database: Session) -> GetUserSchema:
     """Função responsável por buscar instância do usuário a partir do Email informado.
 
         Parameters
@@ -33,16 +33,18 @@ def load_user(email: str, database: Session) -> GetUserSchema:
         -------
             Instância de User do schema com informações da email, nome, username do usuário
     """
-    user = database.query(User).filter_by(email=email.lower()).one_or_none()
+    user = database.query(User).filter_by(
+        email=email.lower(), username=username.lower()).one_or_none()
     if user is None:
         logger.info("NÃO FOI POSSÍVEL BUSCAR O USUÁRIO")
         raise InvalidCredentialsException
     logger.info("BUSCA DO USUÁRIO REALIZADA COM SUCESSO")
     return GetUserSchema(email=email,
-                      id=user.id,
-                      username=user.username,
-                      name=user.name,
-                    )
+                         id=user.id,
+                         username=username,
+                         name=user.name,
+                         )
+
 
 def get_current_user(token: str = Depends(oauth2_scheme),
                      database: Session = Depends(get_db)) -> GetUserSchema:
@@ -68,11 +70,15 @@ def get_current_user(token: str = Depends(oauth2_scheme),
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=["HS256"])
-        token_exp = datetime.strptime(payload.get("expire_token"), "%Y-%m-%d %H:%M:%S.%f")
+        payload = jwt.decode(token, os.getenv(
+            'SECRET_KEY'), algorithms=["HS256"])
+        token_exp = datetime.strptime(payload.get(
+            "expire_token"), "%Y-%m-%d %H:%M:%S.%f")
         email: str = payload.get("email")
+        username: str = payload.get("username")
 
-        user_token = get_user(email, database).access_token
+        user_token = user = get_user(
+            email=email, database=database).access_token
         if datetime.now() >= token_exp or token != user_token:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -83,7 +89,7 @@ def get_current_user(token: str = Depends(oauth2_scheme),
         if email is None:
             raise credentials_exception
 
-        user = load_user(email, database)
+        user = load_user(email, username, database)
         return user
     except JWTError as error:
         raise HTTPException(

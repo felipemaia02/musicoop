@@ -11,6 +11,7 @@ from musicoop.settings.logs import logging
 
 logger = logging.getLogger(__name__)
 
+
 def get_comment_by_post(post_id: int, database: Session) -> List:
     """
       Description
@@ -24,7 +25,8 @@ def get_comment_by_post(post_id: int, database: Session) -> List:
 
     return comment
 
-def get_comment_by_id(comment_id: int,database: Session) -> Comment:
+
+def get_comment_by_id(comment_id: int, database: Session) -> Comment:
     """
       Description
       -----------
@@ -37,6 +39,7 @@ def get_comment_by_id(comment_id: int,database: Session) -> Comment:
 
     return comment
 
+
 def create_comment(request: CommentSchema, current_user: int, database: Session) -> Comment:
     """
       Description
@@ -47,13 +50,15 @@ def create_comment(request: CommentSchema, current_user: int, database: Session)
 
     """
 
-    new_comment = Comment(user=current_user, post=request.post, comment=request.comment)
+    new_comment = Comment(
+        user=current_user, post=request.post, comment=request.comment)
     database.add(new_comment)
     database.commit()
     logger.info("FOI CRIADO NO BANCO A SEGUINTE CONTRIBUIÇÃO: %s", new_comment)
     return new_comment
 
-def delete_comment(comment_id: int,database: Session) -> Comment:
+
+def delete_comment(comment_id: int, database: Session) -> Comment:
     """
         Description
         -----------
@@ -67,6 +72,7 @@ def delete_comment(comment_id: int,database: Session) -> Comment:
     database.commit()
 
     return get_comment
+
 
 def update_comment(request: CommentUpdateSchema, comment_id: int, database: Session) -> Comment:
     """
