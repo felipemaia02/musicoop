@@ -24,12 +24,20 @@ def get_contribuitions(post_id: int ,database: Session = Depends(get_db)) -> Get
     """
         Description
         -----------
+            Retorna todos as contribuições do post especificado pelo id
+            
         Parameters
         ----------
-        Returns
-        -------
-        Raises
+            post_id : Integer
+                id do post o qual os comentários serão retornados
+        Return
         ------
+            Lista com as contribuições
+        
+        Raises
+        -------
+            HTTPException - retornou vazio - HTTP_202_ACCEPTED
+            
     """
 
     contribuitions = get_contribuitions_by_post(post_id, database)
@@ -41,6 +49,7 @@ def get_contribuitions(post_id: int ,database: Session = Depends(get_db)) -> Get
     )
 
     return contribuitions
+
 @router.post("/contribuitions", status_code=status.HTTP_200_OK)
 async def new_contribuitions(post_id: int,
                              name: str = Form(...),
@@ -52,12 +61,27 @@ async def new_contribuitions(post_id: int,
     """
         Description
         -----------
+            Função que cria uma nova contribuição
         Parameters
         ----------
+            post_id : Integer
+                Id do post o qual será atrelado a contribuição
+            name : String
+                Nome da contribuição
+            description : String
+                Descrição da contribuição
+            file : UploadFile
+                Arquivo de áudio da contribuição
+            
         Returns
         -------
+            Dicionário com os parêmetros da contribuição
+            
         Raises
         ------
+            HTTPException - Arquivo não é valido, apenas mp3! - HTTP_415_UNSUPPORTED_MEDIA_TYPE
+            HTTPException - Erro ao salvar o arquivo no servidor, tente novamente! - HTTP_417_EXPECTATION_FAILED
+            HTTPException - Erro ao criar o comentário no banco de dados - HTTP_406_NOT_ACCEPTABLE
     """
     if file is not None:
         if file.content_type != "audio/mp3" and file.content_type != "audio/mpeg":
@@ -98,12 +122,19 @@ def delete_contribuitions(contribuition_id: int,
     """
         Description
         -----------
+            Função que deleta a contribuição
+            
         Parameters
         ----------
+            contribuition_id : Integer
+            
         Returns
         -------
+            Contribuição deletada
+            
         Raises
         ------
+            HTTPException - Erro ao deletar o comentário no banco de dados - HTTP_406_NOT_ACCEPTABLE
     """
 
     deleted_contribuition = delete_contribuition(contribuition_id, database)

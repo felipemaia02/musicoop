@@ -1,5 +1,5 @@
 """
-Módulo responsável pela configuração de rotas de postagem
+Módulo responsável pela configuração de rotas de postagem e contribuições
 """
 from fastapi import APIRouter
 from musicoop.api.posts import post, comments, contribuitions

@@ -16,9 +16,16 @@ def get_user(email: str, database: Session) -> User:
     """
       Description
       -----------
+        Função que pega um usuário específico a partir do email
 
       Parameters
       ----------
+        email : String
+          Email do usuário
+      
+      Return
+      ------
+        Usuário
 
     """
 
@@ -32,9 +39,16 @@ def get_user_by_id(id: str, database: Session) -> User:
     """
       Description
       -----------
+        Função que pega um usuário específico a partir do id
 
       Parameters
       ----------
+        id : Integer
+          Id do usuário
+      
+      Return
+      ------
+        Usuário
 
     """
 
@@ -48,9 +62,16 @@ def create_user(request: CreateUserSchema, database: Session) -> User:
     """
       Description
       -----------
+        Função que cria um usuário
 
       Parameters
       ----------
+        request : CreatUserSchema
+          Parâmetro com a tipagem dos dados do usuário
+      
+      Return
+      ------
+        Usuário criado
 
     """
     password = hashlib.sha256(request.password.encode()).hexdigest()

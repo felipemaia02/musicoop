@@ -1,5 +1,5 @@
 """
-    Model responsável por salvar usuários da aplicação
+    Módulo com Schema do comentário
 """
 from musicoop.schemas.base_schema import BaseSchema
 

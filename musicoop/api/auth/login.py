@@ -75,6 +75,7 @@ def login_token(data: OAuth2PasswordRequestForm = Depends(),
 
         Raises
         ------
+            HTTPException - HTTP_424_FAILED_DEPENDENCY
             InvalidCredentialsException - Caso as credenciais sejam inválidas
     """
     email = data.username.lower()
@@ -109,14 +110,18 @@ def register_user(request: CreateUserSchema, database: Session = Depends(get_db)
 
         Parameters
         ----------
-
-
+            request : CreateUserSchema
+                Parâmetro com a tipagem do schema dos usuários
+                
         Returns
         -------
-
+            Dicionário com email, username e name do usuário após o registro do mesmo
 
         Raises
         ------
+            HTTPException - Email ou Usuário já cadastrado - HTTP_403_FORBIDDEN
+            HTTPException - Erro ao criar o usuário no banco de dados - HTTP_406_NOT_ACCEPTABLE
+
     """
     try:
         new_user = create_user(request, database)
@@ -139,22 +144,24 @@ def register_user(request: CreateUserSchema, database: Session = Depends(get_db)
 
 
 @router.get('/user', status_code=status.HTTP_200_OK)
-def get_all_users(id: int, database: Session = Depends(get_db)) -> GetUserSchema:
+def get_users_by_id(id: int, database: Session = Depends(get_db)) -> GetUserSchema:
     """
         Description
         -----------
-            Função responsável por realizar o cadastro do usuário
+            Função responsável por retornar todo um usuário no banco de dados pelo id dele
 
         Parameters
         ----------
-
-
+            id : Integer
+                id do usuário a ser retornado
+                
         Returns
         -------
-
+            dicionário com id, nome, email e username do usuário pesquisado
 
         Raises
         ------
+            HTTPException - retornou vazio - HTTP_202_ACCEPTED
     """
     user = get_user_by_id(id, database)
 

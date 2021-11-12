@@ -1,5 +1,5 @@
 """
-Model responsável por salvar usuários da aplicação
+Model responsável por salvar votos das contribuições da publicação da aplicação
 """
 from sqlalchemy import Column, Integer, ForeignKey, Time
 
@@ -12,12 +12,12 @@ class Vote(Base):
 
       Attributes
         ----------
-            post         : int
-                ID da música
+            post : int
+                ID da publicação
             contribuition : int
-                ID da contribuição da música
-            user          : int
-                ID do usuário que criou o comentário
+                ID da contribuição da publicação
+            user : int
+                ID do usuário que fez o voto
             creation_date : time
                 Data de criação
     """

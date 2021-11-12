@@ -1,5 +1,5 @@
 """
-Model responsável por salvar usuários da aplicação
+Model responsável por salvar comentários da aplicação
 """
 from datetime import datetime
 from sqlalchemy import Column, Integer,String, ForeignKey, DateTime
@@ -15,11 +15,13 @@ class Comment(Base):
 
       Attributes
       ----------
-            music         : str
+            music : str
                 Nome dá música
-            comment       : str
+            comment : str
                 Comentário dá música
-            user          : int
+            pos : int
+                Id da publiação ao qual será atrelado o comentário
+            user : int
                 ID do usuário que criou o comentário
             creation_date : time
                 Data de criação
