@@ -114,7 +114,7 @@ def register_user(request: CreateUserSchema, database: Session = Depends(get_db)
         ----------
             request : CreateUserSchema
                 Parâmetro com a tipagem do schema dos usuários
-                
+
         Returns
         -------
             Dicionário com email, username e name do usuário após o registro do mesmo
@@ -146,7 +146,9 @@ def register_user(request: CreateUserSchema, database: Session = Depends(get_db)
 
 
 @router.get('/user', status_code=status.HTTP_200_OK)
-def get_users_by_id(id: int, database: Session = Depends(get_db)) -> GetUserSchema:
+def get_users_by_id(id: int,
+                    database: Session = Depends(get_db),
+                    current_user=Depends(auth.get_current_user)) -> GetUserSchema:
     """
         Description
         -----------
@@ -156,7 +158,7 @@ def get_users_by_id(id: int, database: Session = Depends(get_db)) -> GetUserSche
         ----------
             id : Integer
                 id do usuário a ser retornado
-                
+
         Returns
         -------
             dicionário com id, nome, email e username do usuário pesquisado
