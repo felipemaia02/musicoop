@@ -1,5 +1,5 @@
 """
-Model responsável por salvar usuários da aplicação
+Model responsável por salvar publicações da aplicação
 """
 from datetime import datetime
 from sqlalchemy import Column, Integer,String, ForeignKey, DateTime
@@ -14,13 +14,17 @@ class Post(Base):
 
       Attributes
         ----------
-            post_name  : str
-                Nome dá música
-            path          : str
+            id : int
+                Id da publicação
+            post_name : str
+                Nome da publicação
+            file : str
                 Caminho da música
-            file          : str
-                Arquivo da música
-            user          : int
+            file_size : str
+                Tamanho do arquivo da música
+            description : str
+                Descrição da publicação
+            user : int
                 ID do usuário que criou a música
             creation_date : time
                 Data de criação

@@ -1,5 +1,5 @@
 """
-    Módulo com o schema do usuário
+    Módulo com o schema da contribuição
 """
 
 from musicoop.schemas.base_schema import BaseSchema
@@ -7,7 +7,7 @@ from musicoop.schemas.base_schema import BaseSchema
 
 class ContribuitionSchema(BaseSchema):
     """
-        Classe que contém os atributos de um projeto
+        Classe que contém os atributos de uma contribuição
     """
     name: str
     file: str
@@ -18,14 +18,14 @@ class ContribuitionSchema(BaseSchema):
     aproved : bool
 class GetContribuitionSchema(ContribuitionSchema):
     """
-        Classe que contém os atributos de um projeto
+        Classe que contém os atributos de uma contribuição
     """
     id: int
     creation_date: str
 
 class ContribuitionCommentSchema(GetContribuitionSchema):
     """
-        Classe que contém os atributos de um projeto
+        Classe que contém os atributos de uma contribuição
     """
 
     comments: list

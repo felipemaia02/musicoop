@@ -1,8 +1,7 @@
 """
 Módulo responsável por ações de login e obtenção do token do usuário
 """
-
-from os import name
+import hashlib
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
@@ -75,11 +74,14 @@ def login_token(data: OAuth2PasswordRequestForm = Depends(),
 
         Raises
         ------
+            HTTPException - HTTP_424_FAILED_DEPENDENCY
             InvalidCredentialsException - Caso as credenciais sejam inválidas
     """
     email = data.username.lower()
+    password_text = data.password.lower()
+    password = hashlib.sha256(password_text.encode()).hexdigest()
     try:
-        user = get_user(email, database)
+        user = get_user(email=email, database=database, password=password)
     except ConnectionError as err:
         raise HTTPException(status.HTTP_424_FAILED_DEPENDENCY) from err
     if user is None:
@@ -87,7 +89,8 @@ def login_token(data: OAuth2PasswordRequestForm = Depends(),
         raise InvalidCredentialsException
     logger.info("USUÁRIO %s LOGADO COM SUCESSO", email)
     access_token = create_access_token({
-        "email": email,
+        "email": user.email,
+        "username": user.username,
     })
 
     user.access_token = access_token
@@ -109,14 +112,18 @@ def register_user(request: CreateUserSchema, database: Session = Depends(get_db)
 
         Parameters
         ----------
-
+            request : CreateUserSchema
+                Parâmetro com a tipagem do schema dos usuários
 
         Returns
         -------
-
+            Dicionário com email, username e name do usuário após o registro do mesmo
 
         Raises
         ------
+            HTTPException - Email ou Usuário já cadastrado - HTTP_403_FORBIDDEN
+            HTTPException - Erro ao criar o usuário no banco de dados - HTTP_406_NOT_ACCEPTABLE
+
     """
     try:
         new_user = create_user(request, database)
@@ -139,22 +146,26 @@ def register_user(request: CreateUserSchema, database: Session = Depends(get_db)
 
 
 @router.get('/user', status_code=status.HTTP_200_OK)
-def get_all_users(id: int, database: Session = Depends(get_db)) -> GetUserSchema:
+def get_users_by_id(id: int,
+                    database: Session = Depends(get_db),
+                    current_user=Depends(auth.get_current_user)) -> GetUserSchema:
     """
         Description
         -----------
-            Função responsável por realizar o cadastro do usuário
+            Função responsável por retornar todo um usuário no banco de dados pelo id dele
 
         Parameters
         ----------
-
+            id : Integer
+                id do usuário a ser retornado
 
         Returns
         -------
-
+            dicionário com id, nome, email e username do usuário pesquisado
 
         Raises
         ------
+            HTTPException - retornou vazio - HTTP_202_ACCEPTED
     """
     user = get_user_by_id(id, database)
 

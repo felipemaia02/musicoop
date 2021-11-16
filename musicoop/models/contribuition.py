@@ -1,5 +1,5 @@
 """
-Model responsável por salvar usuários da aplicação
+Model responsável por salvar contribuições da aplicação
 """
 from sqlalchemy import Column, Integer,String, ForeignKey, DateTime, Boolean
 from datetime import datetime
@@ -11,17 +11,21 @@ class Contribuition(Base):
 
       Attributes
         ----------
-            name          : str
-                Nome dá contribuição
-            aproved       : boolean
+            id : int
+                Id da contribuição
+            name : str
+                Nome da contribuição
+            aproved : boolean
                 Aprovação da contribuição
-            file          : str
+            file : str
                 Arquivo da Contribuição
-            file_size     : int
+            file_size : int
                 Tamanho do Arquivo de Contribuição
-            post         : int
-                Nome dá Contribuição
-            user          : int
+            description : str
+                Descrição da contribuição
+            post : int
+                Id da publicação a qual a Contribuição está atrelada
+            user : int
                 ID do usuário que criou a Contribuição
             creation_date : time
                 Data de criação
@@ -30,8 +34,8 @@ class Contribuition(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     aproved = Column(Boolean, default=False, nullable=False)
-    file = Column(String, nullable=False)
-    file_size = Column(Integer, nullable=False)
+    file = Column(String, nullable=True)
+    file_size = Column(Integer, nullable=True)
     description = Column(String, nullable=False)
     post = Column(Integer, ForeignKey('post.id'))
     user = Column(Integer, ForeignKey('user.id'))

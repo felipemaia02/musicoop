@@ -1,5 +1,5 @@
 """
-Módulo responsável por ações de login e obtenção do token do usuário
+Módulo responsável por ações dos posts
 """
 import os
 from dotenv import load_dotenv
@@ -11,12 +11,12 @@ from starlette import status
 from musicoop.settings.logs import logging
 from musicoop.database import get_db
 from musicoop.schemas.post import PostSchema, PostCommentSchema
-# from musicoop.schemas.user import GetUserSchema
+from musicoop.schemas.user import GetUserSchema
 from musicoop.controller.post import (get_posts, create_post,
                                       get_post_by_id)
 from musicoop.controller.comment import get_comment_by_post
 from musicoop.controller.contribuition import get_contribuitions_by_post, get_contribuition_by_id
-# from musicoop.core.auth import get_current_user
+from musicoop.core.auth import get_current_user
 from musicoop.utils.save_file import copy_file, delete_all_files
 from musicoop.utils.streamming import iterfile
 from musicoop.utils.aws_connection import connection_aws
@@ -28,16 +28,25 @@ load_dotenv()
 
 
 @router.get("/posts", status_code=status.HTTP_200_OK)
-def get_post(database: Session = Depends(get_db)) -> PostCommentSchema:
+def get_post(current_user: GetUserSchema = Depends(get_current_user),
+             database: Session = Depends(get_db)) -> PostCommentSchema:
     """
         Description
         -----------
+            Retorna todos os posts no banco de dados
+            
         Parameters
         ----------
+            database : Session
+                Sessão no banco de dados
+                
         Returns
         -------
+            Lista com todos os post no banco de dados
+            
         Raises
         ------
+            HTTPException - retornou vazio - HTTP_202_ACCEPTED
     """
     posts = get_posts(database)
 
@@ -68,16 +77,24 @@ def get_post(database: Session = Depends(get_db)) -> PostCommentSchema:
 
 @router.get("/post", status_code=status.HTTP_200_OK)
 def getting_post_by_id(post_id: int,
+                       current_user: GetUserSchema = Depends(get_current_user),
                        database: Session = Depends(get_db)) -> PostCommentSchema:
     """
         Description
         -----------
+            Retorna um pos específico pelo id
+            
         Parameters
         ----------
+            post_id : Integer
+                Id do post
         Returns
         -------
+            Dicionário com os parâmetros do post retornado
+            
         Raises
         ------
+            HTTPException - Erro ao buscar post - HTTP_406_NOT_ACCEPTABLE
     """
     post = get_post_by_id(post_id, database)
     comment = get_comment_by_post(post_id, database)
@@ -107,19 +124,34 @@ async def new_post(
     post_name: str = Form(...),
     description: str = Form(...),
     file: UploadFile = File(...),
-    # current_user:GetUserSchema = Depends(get_current_user),
+    current_user: GetUserSchema = Depends(get_current_user),
     database: Session = Depends(get_db)
 ) -> PostSchema:
     """
         Description
         -----------
+            Função que cria um novo post
+            
         Parameters
         ----------
+            post_name : String
+                Nome da publicação
+            description : String
+                Descrição da publicação
+            file : UploadFile
+                Arquivo de áudio da publicação
+                
         Returns
         -------
+            Dicionário com os parâmetros da publicação
+            
         Raises
         ------
+            HTTPException - Arquivo não é valido, apenas mp3! - HTTP_415_UNSUPPORTED_MEDIA_TYPE
+            HTTPException - Erro ao salvar o arquivo no servidor, tente novamente! - HTTP_417_EXPECTATION_FAILED
+            HTTPException - Erro ao criar a música no banco de dados - HTTP_406_NOT_ACCEPTABLE
     """
+    print(current_user)
     if file.content_type != "audio/mpeg":
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
@@ -132,7 +164,7 @@ async def new_post(
         "file": file.filename,
         "description": description,
         "file_size": file_size,
-        "user": 1
+        "user": current_user.id
     })
     if save_file is False:
         raise HTTPException(
@@ -157,12 +189,25 @@ def streamming_music(post_id: int = None,
     """
         Description
         -----------
+            Função que executa o streaming de música da publicações e contribuições
+            
         Parameters
         ----------
+            post_id : Integer
+                id da publicação
+            contribuition_id : Integer
+                id da contribuição
+                        
         Returns
         -------
+            StreamingResponse
+                Streaming do arquivo de áudio associado
+                
         Raises
         ------
+            HTTPException - Precisa passar um post_id ou uma contribuition_id - HTTP_422_UNPROCESSABLE_ENTITY
+            HTTPException - Erro ao reproduzir a música - HTTP_406_NOT_ACCEPTABLE
+        
     """
     if post_id is None and contribuition_id is None:
         raise HTTPException(
@@ -211,12 +256,22 @@ async def download_file(post_id: int = None,
     """
         Description
         -----------
+            Função que permite fazer o download do arquivo de audio da publicação ou da contribuição
+            
         Parameters
         ----------
+            post_id : Integer
+                id da publicação
+            contribuicion_id : Integer
+                id da contribuição
+                
         Returns
         -------
+            Arquivo de áudio a ser baixado
+            
         Raises
         ------
+            HTTPException - Precisa passar um post_id ou uma contribuition_id - HTTP_422_UNPROCESSABLE_ENTITY
     """
     if post_id is None and contribuition_id is None:
         raise HTTPException(

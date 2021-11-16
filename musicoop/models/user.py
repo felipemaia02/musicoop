@@ -18,15 +18,17 @@ class User(Base):
 
       Attributes
         ----------
-            email         : str
+            id : int
+                id do usuário
+            email : str
                 Email do usuário
-            name          : str
+            name : str
                 Nome do usuário
-            username      : str
+            username : str
                 Username do usuário
-            password      : str
+            password : str
                 Senha do usuário
-            session_token : str
+            access_token : str
                 Token de sessão do usuário
             creation_date : time
                 Data de criação
