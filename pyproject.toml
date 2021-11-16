@@ -22,9 +22,11 @@ botocore = "1.20.106"
 aiobotocore = "1.4.2"
 boto3 = "1.17"
 s3fs = "^2021.10.1"
+pytest = "5.2"
+requests = "^2.26.0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+pytest = "5.2"
 autopep8 = "^1.5.7"
 pylint = "^2.10.2"
 
