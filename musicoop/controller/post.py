@@ -9,6 +9,7 @@ from musicoop.settings.logs import logging
 
 logger = logging.getLogger(__name__)
 
+
 def get_posts(database: Session) -> List:
     """
       Description
@@ -19,11 +20,11 @@ def get_posts(database: Session) -> List:
       ----------
         database : Session
             Sessão do banco de dados
-      
+
       Return
       ------
         Publicações
-        
+
     """
 
     posts = database.query(Post).order_by(Post.id.desc()).all()
@@ -31,7 +32,8 @@ def get_posts(database: Session) -> List:
 
     return posts
 
-def get_post_by_name(post_name:str, database: Session) -> Post:
+
+def get_post_by_name(post_name: str, database: Session) -> Post:
     """
         Description
         -----------
@@ -50,7 +52,8 @@ def get_post_by_name(post_name:str, database: Session) -> Post:
 
     return post
 
-def get_post_by_id(post_id:int, database: Session) -> Post:
+
+def get_post_by_id(post_id: int, database: Session) -> Post:
     """
         Description
         -----------
@@ -70,8 +73,9 @@ def get_post_by_id(post_id:int, database: Session) -> Post:
 
     return post
 
+
 def create_post(request: PostSchema,
-                   database: Session) -> Post:
+                database: Session) -> Post:
     """
       Description
       -----------
@@ -81,18 +85,19 @@ def create_post(request: PostSchema,
       ----------
         request : PostSchema
             Parâmetro com a tipagem da publicação
-            
+
       Return
       ------
         Publicação criada
     """
-    new_post = Post(post_name=request.post_name,file=request.file,
-                          file_size=request.file_size,user=request.user,
-                          description=request.description)
+    new_post = Post(post_name=request.post_name, file=request.file,
+                    file_size=request.file_size, user=request.user,
+                    description=request.description, username=request.username)
     database.add(new_post)
     database.commit()
     logger.info("FOI CRIADO NO BANCO A SEGUINTE CONTRIBUIÇÃO: %s", new_post)
     return new_post
+
 
 def delete_post(post_id: int, database: Session) -> Post:
     """

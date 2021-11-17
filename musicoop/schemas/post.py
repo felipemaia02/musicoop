@@ -15,6 +15,7 @@ class PostSchema(BaseSchema):
     file_size: int
     description : str
     user : int
+    username:str
 class GetPostSchema(PostSchema):
     """
         Classe que contém os atributos de uma publicação

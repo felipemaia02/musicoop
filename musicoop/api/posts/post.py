@@ -34,16 +34,16 @@ def get_post(current_user: GetUserSchema = Depends(get_current_user),
         Description
         -----------
             Retorna todos os posts no banco de dados
-            
+
         Parameters
         ----------
             database : Session
                 Sessão no banco de dados
-                
+
         Returns
         -------
             Lista com todos os post no banco de dados
-            
+
         Raises
         ------
             HTTPException - retornou vazio - HTTP_202_ACCEPTED
@@ -68,6 +68,7 @@ def get_post(current_user: GetUserSchema = Depends(get_current_user),
             "description": post.description,
             "user": post.user,
             "creation_date": str(post.creation_date),
+            "username": post.username,
             "comments": comment,
             "contribuitions": contribuition
         }))
@@ -83,7 +84,7 @@ def getting_post_by_id(post_id: int,
         Description
         -----------
             Retorna um pos específico pelo id
-            
+
         Parameters
         ----------
             post_id : Integer
@@ -91,7 +92,7 @@ def getting_post_by_id(post_id: int,
         Returns
         -------
             Dicionário com os parâmetros do post retornado
-            
+
         Raises
         ------
             HTTPException - Erro ao buscar post - HTTP_406_NOT_ACCEPTABLE
@@ -131,7 +132,7 @@ async def new_post(
         Description
         -----------
             Função que cria um novo post
-            
+
         Parameters
         ----------
             post_name : String
@@ -140,11 +141,11 @@ async def new_post(
                 Descrição da publicação
             file : UploadFile
                 Arquivo de áudio da publicação
-                
+
         Returns
         -------
             Dicionário com os parâmetros da publicação
-            
+
         Raises
         ------
             HTTPException - Arquivo não é valido, apenas mp3! - HTTP_415_UNSUPPORTED_MEDIA_TYPE
@@ -164,7 +165,8 @@ async def new_post(
         "file": file.filename,
         "description": description,
         "file_size": file_size,
-        "user": current_user.id
+        "user": current_user.id,
+        "username": current_user.username
     })
     if save_file is False:
         raise HTTPException(
@@ -190,24 +192,24 @@ def streamming_music(post_id: int = None,
         Description
         -----------
             Função que executa o streaming de música da publicações e contribuições
-            
+
         Parameters
         ----------
             post_id : Integer
                 id da publicação
             contribuition_id : Integer
                 id da contribuição
-                        
+
         Returns
         -------
             StreamingResponse
                 Streaming do arquivo de áudio associado
-                
+
         Raises
         ------
             HTTPException - Precisa passar um post_id ou uma contribuition_id - HTTP_422_UNPROCESSABLE_ENTITY
             HTTPException - Erro ao reproduzir a música - HTTP_406_NOT_ACCEPTABLE
-        
+
     """
     if post_id is None and contribuition_id is None:
         raise HTTPException(
@@ -257,18 +259,18 @@ async def download_file(post_id: int = None,
         Description
         -----------
             Função que permite fazer o download do arquivo de audio da publicação ou da contribuição
-            
+
         Parameters
         ----------
             post_id : Integer
                 id da publicação
             contribuicion_id : Integer
                 id da contribuição
-                
+
         Returns
         -------
             Arquivo de áudio a ser baixado
-            
+
         Raises
         ------
             HTTPException - Precisa passar um post_id ou uma contribuition_id - HTTP_422_UNPROCESSABLE_ENTITY
