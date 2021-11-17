@@ -29,7 +29,7 @@ def get_contribuitions(post_id: int,
         Description
         -----------
             Retorna todos as contribuições do post especificado pelo id
-            
+
         Parameters
         ----------
             post_id : Integer
@@ -37,11 +37,11 @@ def get_contribuitions(post_id: int,
         Return
         ------
             Lista com as contribuições
-        
+
         Raises
         -------
             HTTPException - retornou vazio - HTTP_202_ACCEPTED
-            
+
     """
 
     contribuitions = get_contribuitions_by_post(post_id, database)
@@ -53,6 +53,7 @@ def get_contribuitions(post_id: int,
         )
 
     return contribuitions
+
 
 @router.post("/contribuitions", status_code=status.HTTP_200_OK)
 async def new_contribuitions(post_id: int,
@@ -77,11 +78,11 @@ async def new_contribuitions(post_id: int,
                 Descrição da contribuição
             file : UploadFile
                 Arquivo de áudio da contribuição
-            
+
         Returns
         -------
             Dicionário com os parêmetros da contribuição
-            
+
         Raises
         ------
             HTTPException - Arquivo não é valido, apenas mp3! - HTTP_415_UNSUPPORTED_MEDIA_TYPE
@@ -109,6 +110,7 @@ async def new_contribuitions(post_id: int,
         "description": description,
         "post": post_id,
         "user": current_user.id,
+        "username": current_user.username,
         "aproved": True
     })
     contribuitions = create_contribuition(request, database)
@@ -125,21 +127,21 @@ async def new_contribuitions(post_id: int,
 @router.delete("/contribuitions", status_code=status.HTTP_200_OK)
 def delete_contribuitions(contribuition_id: int,
                           current_user: GetUserSchema = Depends(
-                                 get_current_user),
+                              get_current_user),
                           database: Session = Depends(get_db)) -> ContribuitionSchema:
     """
         Description
         -----------
             Função que deleta a contribuição
-            
+
         Parameters
         ----------
             contribuition_id : Integer
-            
+
         Returns
         -------
             Contribuição deletada
-            
+
         Raises
         ------
             HTTPException - Erro ao deletar o comentário no banco de dados - HTTP_406_NOT_ACCEPTABLE
@@ -157,8 +159,8 @@ def delete_contribuitions(contribuition_id: int,
 # @router.put("/contribuitions", status_code=status.HTTP_200_OK)
 # def update_routes(contribuition_id:int,
 #                   request: ContribuitionUpdateSchema,
-                    # current_user: GetUserSchema = Depends(
-                    #                                  get_current_user),
+    # current_user: GetUserSchema = Depends(
+    #                                  get_current_user),
 #                   database: Session = Depends(get_db)) -> ContribuitionUpdateSchema:
 #     """
 #         Description

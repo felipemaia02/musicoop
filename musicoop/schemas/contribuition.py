@@ -11,17 +11,21 @@ class ContribuitionSchema(BaseSchema):
     """
     name: str
     file: str
-    file_size : int
-    description : str
+    file_size: int
+    description: str
     post: int
-    user : int
-    aproved : bool
+    user: int
+    username: str
+    aproved: bool
+
+
 class GetContribuitionSchema(ContribuitionSchema):
     """
         Classe que contém os atributos de uma contribuição
     """
     id: int
     creation_date: str
+
 
 class ContribuitionCommentSchema(GetContribuitionSchema):
     """
