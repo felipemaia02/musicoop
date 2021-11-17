@@ -78,7 +78,7 @@ def login_token(data: OAuth2PasswordRequestForm = Depends(),
             InvalidCredentialsException - Caso as credenciais sejam inválidas
     """
     email = data.username.lower()
-    password_text = data.password.lower()
+    password_text = data.password
     password = hashlib.sha256(password_text.encode()).hexdigest()
     try:
         user = get_user(email=email, database=database, password=password)
@@ -126,6 +126,7 @@ def register_user(request: CreateUserSchema, database: Session = Depends(get_db)
 
     """
     try:
+        request.email = request.email.lower()
         new_user = create_user(request, database)
     except IntegrityError as err:
         raise HTTPException(
