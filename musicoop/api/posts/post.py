@@ -115,6 +115,7 @@ def getting_post_by_id(post_id: int,
         "description": post.description,
         "user": post.user,
         "creation_date": str(post.creation_date),
+        "username": post.username,
         "comments": comment,
         "contribuitions": contribuition
     })
