@@ -34,7 +34,7 @@ def load_user(email: str, username: str, database: Session) -> GetUserSchema:
             Instância de User do schema com informações da email, nome, username do usuário
     """
     user = database.query(User).filter_by(
-        email=email.lower(), username=username.lower()).one_or_none()
+        email=email, username=username).one_or_none()
     if user is None:
         logger.info("NÃO FOI POSSÍVEL BUSCAR O USUÁRIO")
         raise InvalidCredentialsException
