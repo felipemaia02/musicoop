@@ -221,3 +221,9 @@ def delete_user_by_id(id: int,
         "email": deleted_user.email,
         "username": deleted_user.username
     })
+
+
+@router.post("user/image", status_code=status.HTTP_200_OK)
+def upload_user_image():
+    """
+    """
