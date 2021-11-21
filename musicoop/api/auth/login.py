@@ -178,6 +178,7 @@ def get_users_by_id(id: int,
         )
 
     return GetUserSchema.parse_obj({
+        "id": id,
         "name": user.name,
         "email": user.email,
         "username": user.username
