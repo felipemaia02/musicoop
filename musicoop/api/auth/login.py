@@ -15,7 +15,7 @@ from musicoop.settings.logs import logging
 from musicoop.database import get_db
 from musicoop.schemas.token import TokenSchema
 from musicoop.schemas.user import UserSchema, CreateUserSchema, GetUserSchema
-from musicoop.controller.user import get_user, create_user, get_user_by_id
+from musicoop.controller.user import get_user, create_user, get_user_by_id, delete_user
 from musicoop.utils.login import create_access_token
 from musicoop.core import auth
 
@@ -89,6 +89,7 @@ def login_token(data: OAuth2PasswordRequestForm = Depends(),
         raise InvalidCredentialsException
     logger.info("USUÁRIO %s LOGADO COM SUCESSO", email)
     access_token = create_access_token({
+        "id": user.id,
         "email": user.email,
         "username": user.username,
     })
@@ -177,8 +178,52 @@ def get_users_by_id(id: int,
         )
 
     return GetUserSchema.parse_obj({
-        "id": user.id,
         "name": user.name,
         "email": user.email,
         "username": user.username
     })
+
+
+@router.delete('/user', status_code=status.HTTP_200_OK)
+def delete_user_by_id(id: int,
+                      database: Session = Depends(get_db),
+                      current_user=Depends(auth.get_current_user)):
+    """
+        Description
+        -----------
+            Função responsável por retornar todo um usuário no banco de dados pelo id dele
+
+        Parameters
+        ----------
+            id : Integer
+                id do usuário a ser retornado
+
+        Returns
+        -------
+            dicionário com id, nome, email e username do usuário pesquisado
+
+        Raises
+        ------
+            HTTPException - retornou vazio - HTTP_202_ACCEPTED
+    """
+
+    deleted_user = delete_user(id, database)
+
+    if delete_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="retornou vazio"
+        )
+
+    return GetUserSchema.parse_obj({
+        "id": deleted_user.id,
+        "name": deleted_user.name,
+        "email": deleted_user.email,
+        "username": deleted_user.username
+    })
+
+
+@router.post("user/image", status_code=status.HTTP_200_OK)
+def upload_user_image():
+    """
+    """

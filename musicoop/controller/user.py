@@ -22,7 +22,7 @@ def get_user(email: str, database: Session, password: str = None) -> User:
       ----------
         email : String
           Email do usuário
-      
+
       Return
       ------
         Usuário
@@ -49,7 +49,7 @@ def get_user_by_id(id: str, database: Session) -> User:
       ----------
         id : Integer
           Id do usuário
-      
+
       Return
       ------
         Usuário
@@ -72,7 +72,7 @@ def create_user(request: CreateUserSchema, database: Session) -> User:
       ----------
         request : CreatUserSchema
           Parâmetro com a tipagem dos dados do usuário
-      
+
       Return
       ------
         Usuário criado
@@ -86,3 +86,27 @@ def create_user(request: CreateUserSchema, database: Session) -> User:
     database.commit()
     logger.info("FOI CRIADO NO BANCO O SEGUINTE USUÁRIO: %s", new_user)
     return new_user
+
+
+def delete_user(id: int, database: Session) -> User:
+    """
+        Description
+        -----------
+          Função que deleta um usuário
+
+        Parameters
+        ----------
+          id : int
+            Parâmetro com a tipagem dos dados do usuário
+
+        Return
+        ------
+          Usuário deletado
+    """
+
+    deleted_user = get_user_by_id(id, database)
+
+    database.delete(deleted_user)
+    database.commit()
+
+    return deleted_user
