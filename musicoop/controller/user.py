@@ -105,7 +105,6 @@ def delete_user(id: int, database: Session) -> User:
     """
 
     deleted_user = get_user_by_id(id, database)
-    print(deleted_user)
 
     database.delete(deleted_user)
     database.commit()

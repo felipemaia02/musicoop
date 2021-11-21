@@ -89,6 +89,7 @@ def login_token(data: OAuth2PasswordRequestForm = Depends(),
         raise InvalidCredentialsException
     logger.info("USUÁRIO %s LOGADO COM SUCESSO", email)
     access_token = create_access_token({
+        "id": user.id,
         "email": user.email,
         "username": user.username,
     })
