@@ -53,6 +53,16 @@ def get_post_by_name(post_name: str, database: Session) -> Post:
     return post
 
 
+def get_post_by_user(user_id: int, database: Session) -> Post:
+    """
+    """
+
+    post = database.query(Post).filter(
+        Post.user == user_id).order_by(Post.id.desc()).all()
+    logger.info("FOI RETORNADO DO BANCO AS SEGUINTES CONTRIBUIÇÕES: %s", post)
+    return post
+
+
 def get_post_by_id(post_id: int, database: Session) -> Post:
     """
         Description
