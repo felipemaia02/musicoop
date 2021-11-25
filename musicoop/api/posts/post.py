@@ -154,7 +154,6 @@ async def new_post(
             HTTPException - Erro ao salvar o arquivo no servidor, tente novamente! - HTTP_417_EXPECTATION_FAILED
             HTTPException - Erro ao criar a música no banco de dados - HTTP_406_NOT_ACCEPTABLE
     """
-    print(current_user)
     if file.content_type != "audio/mpeg":
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
