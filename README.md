@@ -22,7 +22,7 @@
 
 ## Sobre o projeto
 
-No mundo da programação é muito comum se deparar com projetos OpenSource onde a comunidade de programadores estão sempre se ajudando a contruir cada vez melhores projetos e ideias. Com isso a ideia do projeto é levar a mesma ideia de colaboração para mundo da arte principalmente a música, com isso estamos desenvolvendo uma aplicação para que isso possa acontecer. Um lugar onde pessoas independente de experiência, ajudam outros pessoas a fazerem música. Basta ter uma ideia!
+No mundo da programação é muito comum se deparar com projetos OpenSource onde a comunidade de programadores estão sempre se ajudando a construir cada vez melhores projetos e ideias. Com isso a ideia do projeto é levar a mesma ideia de colaboração para mundo da arte principalmente a música, com isso estamos desenvolvendo uma aplicação para que isso possa acontecer. Um lugar onde pessoas independente de experiência, ajudam outros pessoas a fazerem música. Basta ter uma ideia!
 
 A plataforma não fica apenas limitada a criação de músicas mas podendo compartilhamento dos projetos. Com isso estamos construindo o Musicoop!
 
