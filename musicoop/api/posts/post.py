@@ -2,6 +2,7 @@
 Módulo responsável por ações dos posts
 """
 import os
+from typing import Dict
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Header
 from fastapi.responses import StreamingResponse, FileResponse
@@ -10,10 +11,10 @@ from starlette import status
 
 from musicoop.settings.logs import logging
 from musicoop.database import get_db
-from musicoop.schemas.post import PostSchema, PostCommentSchema
+from musicoop.schemas.post import PostSchema, PostCommentSchema, GetPostSchema
 from musicoop.schemas.user import GetUserSchema
 from musicoop.controller.post import (get_posts, create_post,
-                                      get_post_by_id)
+                                      get_post_by_id, get_post_by_user)
 from musicoop.controller.comment import get_comment_by_post
 from musicoop.controller.contribuition import get_contribuitions_by_post, get_contribuition_by_id
 from musicoop.core.auth import get_current_user
@@ -287,6 +288,7 @@ async def download_file(post_id: int = None,
     if contribuition_id:
         type_path = "contribuition/"
         post = get_contribuition_by_id(contribuition_id, database)
+
     if os.getenv("SERVER_TYPE") == "PROD":
         delete_all_files(type_path)
         s3_client = connection_aws()
@@ -295,9 +297,24 @@ async def download_file(post_id: int = None,
         s3_client.download_file(os.getenv(
             "BUCKET_NAME"), file_aws_path, os.getenv("MUSIC_PATH") + file_aws_path)
 
-        path = os.getenv("MUSIC_PATH") + type_path + post.file
-    else:
-        path = os.getenv("MUSIC_PATH") + type_path + post.file
+    path = os.getenv("MUSIC_PATH") + type_path + post.file
 
     return FileResponse(path=path,
                         filename=post.file)
+
+
+@router.get("/post/user", status_code=status.HTTP_200_OK)
+def get_posts_by_user_id(database: Session = Depends(get_db),
+                         current_user: GetUserSchema = Depends(get_current_user)) -> GetPostSchema:
+    """
+    """
+
+    post = get_post_by_user(current_user.id, database)
+
+    if post is None:
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Erro ao buscar informações do post por usuário"
+        )
+
+    return post

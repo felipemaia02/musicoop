@@ -26,7 +26,7 @@ def get_contribuitions_by_post(post_id: int, database: Session) -> List:
         Lista com as contribuições relacionadas ao post
     """
     contribuition = database.query(Contribuition).filter(
-        Contribuition.post == post_id).all()
+        Contribuition.post == post_id).order_by(Contribuition.id.desc()).all()
     logger.info(
         "FOI RETORNADO DO BANCO AS SEGUINTES CONTRIBUIÇÕES: %s", contribuition)
 
