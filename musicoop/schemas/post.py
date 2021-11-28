@@ -28,5 +28,4 @@ class PostCommentSchema(GetPostSchema):
         Classe que contém os atributos de uma publicação
     """
 
-    comments: list
     contribuitions : list

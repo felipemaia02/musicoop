@@ -59,7 +59,6 @@ def get_post(current_user: GetUserSchema = Depends(get_current_user),
 
     list_posts = []
     for post in posts:
-        comment = get_comment_by_post(post.id, database)
         contribuition = get_contribuitions_by_post(post.id, database)
         list_posts.append(PostCommentSchema.parse_obj({
             "id": post.id,
@@ -70,7 +69,6 @@ def get_post(current_user: GetUserSchema = Depends(get_current_user),
             "user": post.user,
             "creation_date": str(post.creation_date),
             "username": post.username,
-            "comments": comment,
             "contribuitions": contribuition
         }))
 
@@ -99,7 +97,6 @@ def getting_post_by_id(post_id: int,
             HTTPException - Erro ao buscar post - HTTP_406_NOT_ACCEPTABLE
     """
     post = get_post_by_id(post_id, database)
-    comment = get_comment_by_post(post_id, database)
     contribuition = get_contribuitions_by_post(post_id, database)
 
     if post is None:
@@ -117,7 +114,6 @@ def getting_post_by_id(post_id: int,
         "user": post.user,
         "creation_date": str(post.creation_date),
         "username": post.username,
-        "comments": comment,
         "contribuitions": contribuition
     })
 
@@ -304,7 +300,7 @@ async def download_file(post_id: int = None,
 
 @router.get("/post/user", status_code=status.HTTP_200_OK)
 def get_posts_by_user_auth(database: Session = Depends(get_db),
-                           current_user: GetUserSchema = Depends(get_current_user)) -> GetPostSchema:
+                           current_user: GetUserSchema = Depends(get_current_user)) -> PostCommentSchema:
     """
         Description
         -----------
@@ -320,7 +316,21 @@ def get_posts_by_user_auth(database: Session = Depends(get_db),
             HTTPException - Caso o post retorne vazio HTTP_202_ACCEPTED
     """
 
-    post = get_post_by_user(current_user.id, database)
+    posts = get_post_by_user(current_user.id, database)
+    list_posts = []
+    for post in posts:
+        contribuition = get_contribuitions_by_post(post.id, database)
+        list_posts.append(PostCommentSchema.parse_obj({
+            "id": post.id,
+            "post_name": post.post_name,
+            "file": post.file,
+            "file_size": post.file_size,
+            "description": post.description,
+            "user": post.user,
+            "creation_date": str(post.creation_date),
+            "username": post.username,
+            "contribuitions": contribuition
+        }))
 
     if post is None:
         raise HTTPException(
@@ -328,4 +338,4 @@ def get_posts_by_user_auth(database: Session = Depends(get_db),
             detail="Post veio vazio"
         )
 
-    return post
+    return list_posts
