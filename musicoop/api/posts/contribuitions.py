@@ -6,13 +6,14 @@ from fastapi import APIRouter, Depends, HTTPException, File, Form, UploadFile
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm.session import Session
 from starlette import status
+from musicoop.models.contribuition import Contribuition
 
 from musicoop.settings.logs import logging
 from musicoop.database import get_db
 from musicoop.utils.save_file import copy_file
 from musicoop.schemas.contribuition import GetContribuitionSchema, ContribuitionSchema
 from musicoop.controller.contribuition import (
-    create_contribuition, get_contribuitions_by_post, delete_contribuition)
+    create_contribuition, get_contribuitions_by_post, delete_contribuition, get_contribuitions_by_user)
 from musicoop.core.auth import get_current_user
 from musicoop.schemas.user import GetUserSchema
 
@@ -156,30 +157,18 @@ def delete_contribuitions(contribuition_id: int,
 
     return deleted_contribuition
 
-# @router.put("/contribuitions", status_code=status.HTTP_200_OK)
-# def update_routes(contribuition_id:int,
-#                   request: ContribuitionUpdateSchema,
-    # current_user: GetUserSchema = Depends(
-    #                                  get_current_user),
-#                   database: Session = Depends(get_db)) -> ContribuitionUpdateSchema:
-#     """
-#         Description
-#         -----------
-#         Parameters
-#         ----------
-#         Returns
-#         -------
-#         Raises
-#         ------
-#     """
-#     upated_contribuition = update_contribuition(request, contribuition_id, database)
 
-#     if upated_contribuition is None:
-#         raise HTTPException(
-#         status_code=status.HTTP_406_NOT_ACCEPTABLE,
-#         detail="Erro ao atualizar o comentário no banco de dados"
-#         )
+@router.get("/contribuitions/user", status_code=status.HTTP_200_OK)
+def get_contribuition_by_user_auth(database: Session = Depends(get_db),
+                                   current_user: GetUserSchema = Depends(get_current_user)) -> GetContribuitionSchema:
+    """
+    """
 
-#     return ContribuitionUpdateSchema.parse_obj({
-#         "contribuition":request.contribuition,
-#         })
+    contribuition = get_contribuitions_by_user(current_user.id, database)
+    if contribuition is None:
+        raise HTTPException(
+            status_code=status.HTTP_202_ACCEPTED,
+            detail="Contribuição retornou vazio"
+        )
+
+    return contribuition

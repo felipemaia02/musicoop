@@ -33,6 +33,29 @@ def get_contribuitions_by_post(post_id: int, database: Session) -> List:
     return contribuition
 
 
+def get_contribuitions_by_user(user_id: int, database: Session) -> List:
+    """
+        Description
+        -----------
+          Função que retorna as contribuiçõe atreladas a uma publicação
+
+        Parameters
+        ----------
+          user_id : Integer
+            id do usuário
+
+        Return
+        ------
+          Lista com as contribuições relacionadas ao post
+      """
+    contribuition = database.query(Contribuition).filter(
+        Contribuition.user == user_id).order_by(Contribuition.id.desc()).all()
+    logger.info(
+        "FOI RETORNADO DO BANCO AS SEGUINTES CONTRIBUIÇÕES: %s", contribuition)
+
+    return contribuition
+
+
 def get_contribuition_by_id(contribuition_id: int, database: Session) -> Contribuition:
     """
       Description
