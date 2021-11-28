@@ -84,7 +84,7 @@ def getting_post_by_id(post_id: int,
     """
         Description
         -----------
-            Retorna um pos específico pelo id
+            Retorna um post específico pelo id
 
         Parameters
         ----------
@@ -303,17 +303,29 @@ async def download_file(post_id: int = None,
 
 
 @router.get("/post/user", status_code=status.HTTP_200_OK)
-def get_posts_by_user_id(database: Session = Depends(get_db),
-                         current_user: GetUserSchema = Depends(get_current_user)) -> GetPostSchema:
+def get_posts_by_user_auth(database: Session = Depends(get_db),
+                           current_user: GetUserSchema = Depends(get_current_user)) -> GetPostSchema:
     """
+        Description
+        -----------
+            Função buscar um post pelo usuário
+
+
+        Returns
+        -------
+            GetPostSchema - Schema do post
+
+        Raises
+        ------
+            HTTPException - Caso o post retorne vazio HTTP_202_ACCEPTED
     """
 
     post = get_post_by_user(current_user.id, database)
 
     if post is None:
         raise HTTPException(
-            status_code=status.HTTP_406_NOT_ACCEPTABLE,
-            detail="Erro ao buscar informações do post por usuário"
+            status_code=status.HTTP_202_ACCEPTED,
+            detail="Post veio vazio"
         )
 
     return post
