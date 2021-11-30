@@ -3,7 +3,7 @@ Módulo responsável por ações de login e obtenção do token do usuário
 """
 import hashlib
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from fastapi_login.exceptions import InvalidCredentialsException
 from sqlalchemy.exc import IntegrityError
@@ -14,9 +14,10 @@ from starlette import status
 from musicoop.settings.logs import logging
 from musicoop.database import get_db
 from musicoop.schemas.token import TokenSchema
-from musicoop.schemas.user import UserSchema, CreateUserSchema, GetUserSchema
+from musicoop.schemas.user import UserSchema, CreateUserSchema, GetUserSchema, EmailSchema
 from musicoop.controller.user import get_user, create_user, get_user_by_id, delete_user
 from musicoop.utils.login import create_access_token
+from musicoop.utils.email import send_email
 from musicoop.core import auth
 
 logger = logging.getLogger(__name__)
@@ -224,7 +225,10 @@ def delete_user_by_id(id: int,
     })
 
 
-@router.post("user/image", status_code=status.HTTP_200_OK)
-def upload_user_image():
+@router.post('/user/reset/password', status_code=status.HTTP_200_OK)
+def user_reset_password(email: EmailSchema,
+                        database: Session = Depends(get_db)):
     """
     """
+
+    send_email()

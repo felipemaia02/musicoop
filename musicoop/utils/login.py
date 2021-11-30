@@ -29,3 +29,8 @@ def create_access_token(data: dict) -> str:
     refresh_token = jwt.encode(data, os.getenv('SECRET_KEY'), algorithm="HS256")
     logger.info("ACCESS TOKEN GERADO COM SUCESSO")
     return refresh_token
+
+
+def generate_password() -> str:
+    """
+    """
