@@ -17,7 +17,7 @@ from musicoop.schemas.token import TokenSchema
 from musicoop.schemas.user import UserSchema, CreateUserSchema, GetUserSchema, EmailSchema
 from musicoop.controller.user import get_user, create_user, get_user_by_id, delete_user
 from musicoop.utils.login import create_access_token
-from musicoop.utils.email import send_email
+from musicoop.utils.email import SendEmail
 from musicoop.core import auth
 
 logger = logging.getLogger(__name__)
@@ -128,19 +128,26 @@ def register_user(request: CreateUserSchema, database: Session = Depends(get_db)
 
     """
     try:
-        request.email = request.email.lower()
+        request.email = request.email.lower().replace(" ", "")
+        email_validate = SendEmail().validate_email(request.email)
+        if email_validate is False:
+            raise HTTPException(
+                status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                detail="Colocar um email valido!"
+            )
         new_user = create_user(request, database)
+
     except IntegrityError as err:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Email ou Usuário já cadastrado"
         ) from err
-
     if new_user is None:
         raise HTTPException(
             status_code=status.HTTP_406_NOT_ACCEPTABLE,
             detail="Erro ao criar o usuário no banco de dados"
         )
+    SendEmail().welcome_email(request.email, request.name)
     return UserSchema.parse_obj({
         "email": request.email,
         "username": request.username,
@@ -223,12 +230,3 @@ def delete_user_by_id(id: int,
         "email": deleted_user.email,
         "username": deleted_user.username
     })
-
-
-@router.post('/user/reset/password', status_code=status.HTTP_200_OK)
-def user_reset_password(email: EmailSchema,
-                        database: Session = Depends(get_db)):
-    """
-    """
-
-    send_email()
